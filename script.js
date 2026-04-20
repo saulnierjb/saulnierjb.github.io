@@ -1,42 +1,35 @@
 // ============================
 // Email Obfuscation (click-to-reveal)
 // ============================
-document.addEventListener('DOMContentLoaded', function () {
-    const e = 'c2F1bG5pZXJqZWFuYmFwdGlzdGVAZ21haWwuY29t';
-    function decode() { return atob(e); }
+var heroBtn = document.getElementById('email-hero');
+var revealBtn = document.getElementById('email-reveal');
+var _e = [115,97,117,108,110,105,101,114,106,101,97,110,98,97,112,116,105,115,116,101,64,103,109,97,105,108,46,99,111,109];
+function _d() { return _e.map(function(c) { return String.fromCharCode(c); }).join(''); }
 
-    // Hero button — opens mailto
-    document.querySelectorAll('[data-email]').forEach(function (el) {
-        el.addEventListener('click', function handler(ev) {
-            ev.preventDefault();
-            var addr = decode();
-            el.href = 'mailto:' + addr;
-            el.removeEventListener('click', handler);
-            window.location.href = 'mailto:' + addr;
+if (heroBtn) {
+    heroBtn.addEventListener('click', function () {
+        window.location.href = 'mailto:' + _d();
+    });
+}
+
+if (revealBtn) {
+    var _revealed = false;
+    revealBtn.addEventListener('click', function () {
+        var addr = _d();
+        if (!_revealed) {
+            revealBtn.textContent = addr;
+            _revealed = true;
+        }
+        navigator.clipboard.writeText(addr).then(function () {
+            var tip = document.createElement('span');
+            tip.className = 'copy-tooltip';
+            tip.textContent = 'Email copied!';
+            revealBtn.style.position = 'relative';
+            revealBtn.appendChild(tip);
+            setTimeout(function () { tip.remove(); }, 1500);
         });
     });
-
-    // Contact button — reveal + copy to clipboard
-    document.querySelectorAll('[data-email-copy]').forEach(function (el) {
-        var revealed = false;
-        el.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            var addr = decode();
-            if (!revealed) {
-                el.textContent = addr;
-                revealed = true;
-            }
-            navigator.clipboard.writeText(addr).then(function () {
-                var tip = document.createElement('span');
-                tip.className = 'copy-tooltip';
-                tip.textContent = 'Email copied!';
-                el.style.position = 'relative';
-                el.appendChild(tip);
-                setTimeout(function () { tip.remove(); }, 1500);
-            });
-        });
-    });
-});
+}
 
 // ============================
 // Scroll Animations (IntersectionObserver)

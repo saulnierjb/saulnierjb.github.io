@@ -258,10 +258,12 @@ body {
     border-radius: 8px;
     font-size: 0.875rem;
     font-weight: 500;
+    font-family: inherit;
     text-decoration: none;
     transition: all 0.2s;
     cursor: pointer;
     border: none;
+    background: none;
 }
 
 .btn-primary {
