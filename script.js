@@ -4,14 +4,36 @@
 (function () {
     const e = 'c2F1bG5pZXJqZWFuYmFwdGlzdGVAZ21haWwuY29t';
     function decode() { return atob(e); }
+
+    // Hero button — opens mailto
     document.querySelectorAll('[data-email]').forEach((el) => {
         el.addEventListener('click', function handler(ev) {
             ev.preventDefault();
             const addr = decode();
             el.href = 'mailto:' + addr;
-            if (el.hasAttribute('data-show-email')) el.textContent = addr;
             el.removeEventListener('click', handler);
             window.location.href = 'mailto:' + addr;
+        });
+    });
+
+    // Contact button — reveal + copy to clipboard
+    document.querySelectorAll('[data-email-copy]').forEach((el) => {
+        let revealed = false;
+        el.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            const addr = decode();
+            if (!revealed) {
+                el.textContent = addr;
+                revealed = true;
+            }
+            navigator.clipboard.writeText(addr).then(() => {
+                const tip = document.createElement('span');
+                tip.className = 'copy-tooltip';
+                tip.textContent = 'Email copied!';
+                el.style.position = 'relative';
+                el.appendChild(tip);
+                setTimeout(() => tip.remove(), 1500);
+            });
         });
     });
 })();

@@ -607,3 +607,26 @@ body {
         justify-content: center;
     }
 }
+
+/* ============================
+   Copy Tooltip
+   ============================ */
+.copy-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-text);
+    color: var(--color-bg);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: tooltip-fade 1.5s ease forwards;
+}
+
+@keyframes tooltip-fade {
+    0%, 70% { opacity: 1; }
+    100% { opacity: 0; }
+}
