@@ -1,4 +1,22 @@
 // ============================
+// Email Obfuscation (click-to-reveal)
+// ============================
+(function () {
+    const e = 'c2F1bG5pZXJqZWFuYmFwdGlzdGVAZ21haWwuY29t';
+    function decode() { return atob(e); }
+    document.querySelectorAll('[data-email]').forEach((el) => {
+        el.addEventListener('click', function handler(ev) {
+            ev.preventDefault();
+            const addr = decode();
+            el.href = 'mailto:' + addr;
+            if (el.hasAttribute('data-show-email')) el.textContent = addr;
+            el.removeEventListener('click', handler);
+            window.location.href = 'mailto:' + addr;
+        });
+    });
+})();
+
+// ============================
 // Scroll Animations (IntersectionObserver)
 // ============================
 const observer = new IntersectionObserver(
