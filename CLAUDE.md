@@ -38,3 +38,7 @@ No build step, no dependencies, no package manager. Just edit and reload.
 - CV download button points to `cv.pdf` in the root directory
 - ORCID: 0009-0009-3099-2307
 - Google Scholar link needs real user ID (currently placeholder)
+
+## CV auto-sync
+
+`cv.pdf` is **not** edited here directly — it is auto-pushed from the `saulnierjb/cv_git` repo whenever its source LaTeX is recompiled. The sync uses a GitHub Actions workflow in `cv_git` authenticated via an SSH deploy key registered on this repo (Settings → Deploy keys, "cv_git auto-update"). See `cv_git/CLAUDE.md` for the full setup and troubleshooting steps.
