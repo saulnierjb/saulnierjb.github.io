@@ -42,3 +42,35 @@ No build step, no dependencies, no package manager. Just edit and reload.
 ## CV auto-sync
 
 `cv.pdf` is **not** edited here directly — it is auto-pushed from the `saulnierjb/cv_git` repo whenever its source LaTeX is recompiled. The sync uses a GitHub Actions workflow in `cv_git` authenticated via an SSH deploy key registered on this repo (Settings → Deploy keys, "cv_git auto-update"). See `cv_git/CLAUDE.md` for the full setup and troubleshooting steps.
+
+## Conferences section
+
+The `#conferences` section combines two layouts:
+
+- **Featured cards** (`.conf-card`) for conferences with attached materials. Each card has a `#qmicrobio-<year>`-style anchor for QR-code deep-linking, optional role badges (`Talk` / `Poster`), and a `.conf-materials` row of buttons linking to files under `assets/conferences/<slug>/`.
+- **Compact list** (`.conf-list` / `.conf-list-item`) below, for past conferences without materials.
+
+When adding posters or videos:
+- Drop files under `assets/conferences/<slug>/` (e.g. `poster.pdf`, `data-video.mp4`).
+- For QR codes printed on physical posters, encode `https://saulnierjb.github.io/#<slug>`.
+- Compress posters with `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=out.pdf in.pdf` (typically 10× reduction).
+- Re-encode large videos with `ffmpeg -i in -vf scale=720:720 -c:v libx264 -b:v 2400k -movflags +faststart -pass 1/2 out.mp4` to target <5 MB.
+
+## ⚠️ GitHub Pages: strip executable bit on binary assets
+
+**Critical gotcha.** When binary assets (PDFs, videos, images) are copied from external filesystems like `/Volumes/jb_ssd256gb/`, they often inherit mode `0755` (executable). Git tracks them as `100755` and **GitHub Pages then silently fails to deploy the commit** — the workflow either hangs in `queued` indefinitely or returns `startup_failure` with no useful log message. This wasted ~24 h on 2026-05-15 with `reference-video.mp4`.
+
+After copying any binary asset:
+
+```bash
+chmod 644 <file>
+git update-index --chmod=-x <file>
+```
+
+To audit existing tracked files for stray executable modes:
+
+```bash
+git ls-files -s | grep -v '^100644' | grep -v '^120000'
+```
+
+If a Pages deploy is stuck `queued` or fails with `startup_failure` and no useful log, the first thing to check is `git ls-files -s` on the suspicious commit for unexpected `100755` modes on non-script files.
