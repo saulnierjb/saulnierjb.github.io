@@ -53,8 +53,10 @@ The `#conferences` section combines two layouts:
 When adding posters or videos:
 - Drop files under `assets/conferences/<slug>/` (e.g. `poster.pdf`, `data-video.mp4`).
 - For QR codes printed on physical posters, encode `https://saulnierjb.github.io/#<slug>`.
-- Compress posters with `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=out.pdf in.pdf` (typically 10× reduction).
+- Compress posters with ghostscript. `-dPDFSETTINGS=/ebook` is aggressive and **has dropped vector plots in the past** — prefer `/printer` (typically 10–15 MB, all figures intact). Verify visually before committing.
 - Re-encode large videos with `ffmpeg -i in -vf scale=720:720 -c:v libx264 -b:v 2400k -movflags +faststart -pass 1/2 out.mp4` to target <5 MB.
+
+**Do not write `<p>` descriptions on `.conf-card` blocks.** Each card is just header + `<h3>` + `.conf-materials`. The same conference often hosts different content for talk vs poster (e.g. Q-Microbio 2026: talk on Myxo, poster on *B. subtilis*), so any single description ends up wrong. Ask before inventing one.
 
 ## ⚠️ GitHub Pages: strip executable bit on binary assets
 
