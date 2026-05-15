@@ -531,13 +531,27 @@ body {
     transform: translateY(-2px);
 }
 
+.conf-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.conf-roles {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 .conf-label {
     font-size: 0.8rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--color-accent);
-    margin-bottom: 8px;
 }
 
 .conf-card h3 {
