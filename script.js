@@ -54,19 +54,27 @@ document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
 const toggle = document.getElementById('theme-toggle');
 const html = document.documentElement;
 
-// Check saved preference or system preference
+function updateThemeToggleLabel() {
+    const current = html.getAttribute('data-theme');
+    toggle.setAttribute('aria-label', current === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+}
+
+// Check saved preference, otherwise default to light mode
 const saved = localStorage.getItem('theme');
 if (saved) {
     html.setAttribute('data-theme', saved);
-} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    html.setAttribute('data-theme', 'dark');
+} else {
+    html.setAttribute('data-theme', 'light');
 }
+
+updateThemeToggleLabel();
 
 toggle.addEventListener('click', () => {
     const current = html.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
+    updateThemeToggleLabel();
     drawCanvas(); // redraw with new colors
 });
 
