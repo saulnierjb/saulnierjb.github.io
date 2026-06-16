@@ -59,10 +59,12 @@ function updateThemeToggleLabel() {
     toggle.setAttribute('aria-label', current === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
 }
 
-// Check saved preference, otherwise default to light mode
+// Check saved preference, otherwise follow the system preference
 const saved = localStorage.getItem('theme');
 if (saved) {
     html.setAttribute('data-theme', saved);
+} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    html.setAttribute('data-theme', 'dark');
 } else {
     html.setAttribute('data-theme', 'light');
 }
