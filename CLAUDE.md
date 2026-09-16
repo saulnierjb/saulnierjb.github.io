@@ -37,7 +37,7 @@ No build step, no dependencies, no package manager. Just edit and reload.
 - Photo placeholder exists; replace with `<img src="photo.jpg">` when available
 - CV download button points to `cv.pdf` in the root directory
 - ORCID: 0009-0009-3099-2307
-- Google Scholar link needs real user ID (currently placeholder)
+- Google Scholar: user ID `rqcY9EEAAAAJ` (profile created 2026-09-16). Link it without `hl=`, so a visitor gets the page in their own language
 
 ## CV auto-sync
 
