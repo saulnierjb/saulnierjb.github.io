@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🛒</text></svg>">
+<meta name="robots" content="noindex, nofollow">
+<title>Weekly Shopping List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root {
+    --ground: #faf8f4;
+    --card: #ffffff;
+    --ink: #2b2620;
+    --muted: #8c8577;
+    --accent: #8a6d3b;
+    --accent-ink: #ffffff;
+    --border: #e6e0d5;
+    --done-bg: #f5f1e9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1c1917; --card: #26221d; --ink: #ece7dd; --muted: #9a9184;
+      --accent: #c9a468; --accent-ink: #1c1917; --border: #3a342b; --done-bg: #211d18;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #1c1917; --card: #26221d; --ink: #ece7dd; --muted: #9a9184;
+    --accent: #c9a468; --accent-ink: #1c1917; --border: #3a342b; --done-bg: #211d18;
+  }
+  :root[data-theme="light"] {
+    --ground: #faf8f4; --card: #ffffff; --ink: #2b2620; --muted: #8c8577;
+    --accent: #8a6d3b; --accent-ink: #ffffff; --border: #e6e0d5; --done-bg: #f5f1e9;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    padding-bottom: 40px;
+  }
+
+  .top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--ground);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px 0;
+  }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 560px; margin: 0 auto; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 1.35rem; letter-spacing: 0.2px; min-width: 0; }
+  .head-right { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; }
+  .count { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
+  .count b { color: var(--accent); font-size: 1.15rem; }
+  .lang { display: flex; flex: 0 0 auto; border: 1.5px solid var(--accent); border-radius: 999px; overflow: hidden; }
+  .lang button {
+    font: inherit; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--accent); background: none; border: none; cursor: pointer;
+    min-width: 42px; height: 26px; padding: 0; text-align: center;
+  }
+  .lang button.on { background: var(--accent); color: var(--accent-ink); }
+  .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .bar { height: 4px; border-radius: 2px 2px 0 0; background: var(--border); margin: 10px auto 0; max-width: 560px; overflow: hidden; }
+  #fill { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.25s ease; }
+
+  main { max-width: 560px; margin: 0 auto; padding: 14px 14px 0; }
+
+  /* ---- Plan panel ---- */
+  .plan {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 18px; overflow: hidden;
+  }
+  .plan-toggle {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 100%; padding: 11px 14px;
+    font: inherit; font-size: 0.92rem; font-weight: 700; color: var(--ink);
+    background: none; border: none; cursor: pointer; text-align: left;
+  }
+  .plan-toggle .sum { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+  .plan-toggle .chev { color: var(--accent); transition: transform 0.15s ease; }
+  .plan.open .chev { transform: rotate(180deg); }
+  .plan-body { display: none; padding: 0 14px 12px; }
+  .plan.open .plan-body { display: block; }
+  .ppl { display: flex; align-items: center; gap: 14px; padding: 8px 0 12px; border-bottom: 1px dashed var(--border); }
+  .ppl .lbl { font-size: 0.88rem; color: var(--muted); flex: 1; }
+  .step-btn {
+    width: 32px; height: 32px; border-radius: 9px;
+    border: 1.5px solid var(--accent); background: none; color: var(--accent);
+    font-size: 1.1rem; font-weight: 700; cursor: pointer; line-height: 1;
+  }
+  .step-btn:disabled { opacity: 0.35; cursor: default; }
+  .step-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ppl b { font-size: 1.2rem; min-width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
+  .mrow { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .mrow:last-of-type { border-bottom: none; }
+  .mrow .rname { flex: 1; font-size: 0.88rem; font-weight: 600; }
+  .seg { display: flex; border: 1.5px solid var(--accent); border-radius: 8px; overflow: hidden; }
+  .seg button {
+    font: inherit; font-size: 0.78rem; font-weight: 700; padding: 4px 10px;
+    background: none; border: none; color: var(--accent); cursor: pointer;
+    border-left: 1.5px solid var(--accent);
+  }
+  .seg button:first-child { border-left: none; }
+  .seg button.on { background: var(--accent); color: var(--accent-ink); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .plan-hint { font-size: 0.74rem; color: var(--muted); margin-top: 8px; }
+
+  .note {
+    font-size: 0.82rem; color: var(--muted);
+    padding: 10px 12px; border-left: 3px solid var(--accent);
+    background: var(--card); border-radius: 0 8px 8px 0;
+    margin-bottom: 18px;
+  }
+  .note b { color: var(--ink); }
+
+  section { margin-bottom: 24px; }
+  .sec-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 4px 2px;
+  }
+  .sec-head h2 { font-family: Georgia, serif; font-weight: 400; font-size: 1.15rem; }
+  .sec-desc { font-size: 0.78rem; color: var(--muted); padding: 0 4px 8px; }
+  .sec-count {
+    font-size: 0.75rem; font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 1px 9px;
+  }
+  .sec-count.full { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+
+  .sub-label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--accent); font-weight: 600;
+    margin: 12px 4px 5px;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  }
+  .sub-label .nt-total { color: var(--muted); letter-spacing: 0.4px; white-space: nowrap; }
+  .sub-label .nt-total.over { color: #b3372c; }
+
+  .items {
+    display: flex; flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden;
+  }
+  .item {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; min-height: 52px;
+    padding: 8px 14px;
+    background: transparent; border: none; border-bottom: 1px solid var(--border);
+    font: inherit; color: inherit; text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .items .item:last-child, .items .item.done:last-of-type { border-bottom-color: transparent; }
+  .item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 8px; }
+
+  .tick {
+    flex: 0 0 auto;
+    width: 24px; height: 24px;
+    border: 2px solid var(--accent); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s ease;
+  }
+  .tick svg { width: 14px; height: 14px; opacity: 0; }
+  .tick svg path { stroke: var(--accent-ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+  .txt { flex: 1 1 auto; min-width: 0; }
+  .name { font-weight: 600; font-size: 0.95rem; display: block; }
+  .qty { color: var(--muted); font-size: 0.82rem; display: block; }
+  .use {
+    flex: 0 0 auto; color: var(--muted); font-size: 0.68rem;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    text-align: right; white-space: nowrap;
+  }
+
+  .item.done { order: 1; background: var(--done-bg); }
+  .item.done .tick { background: var(--accent); }
+  .item.done .tick svg { opacity: 1; }
+  .item.done .name { text-decoration: line-through; }
+  .item.done .name, .item.done .qty, .item.done .use { opacity: 0.55; }
+
+  footer { max-width: 560px; margin: 6px auto 0; padding: 0 14px; text-align: center; }
+  #reset {
+    font: inherit; font-size: 0.9rem; font-weight: 600;
+    color: var(--accent); background: none;
+    border: 1.5px solid var(--accent); border-radius: 999px;
+    padding: 11px 24px; cursor: pointer;
+    width: 100%; max-width: 340px;
+  }
+  #reset.armed { color: #b3372c; border-color: #b3372c; }
+  #reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .hint { font-size: 0.72rem; color: var(--muted); margin-top: 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #fill, .tick, .plan-toggle .chev { transition: none; }
+  }
+</style>
+
+<header class="top">
+  <div class="head-row">
+    <h1 id="title">Weekly Shop</h1>
+    <div class="head-right">
+      <div class="lang" role="group" aria-label="Language">
+        <button id="lang-en" type="button">EN</button>
+        <button id="lang-fr" type="button">FR</button>
+        <button id="lang-zh" type="button">中文</button>
+      </div>
+      <span class="count"><b id="done">0</b> / <span id="total">0</span></span>
+    </div>
+  </div>
+  <div class="bar"><div id="fill"></div></div>
+</header>
+
+<main>
+  <div class="plan" id="plan">
+    <button class="plan-toggle" id="plan-toggle" type="button" aria-expanded="false">
+      <span id="plan-title"></span>
+      <span class="sum" id="plan-sum"></span>
+      <span class="chev" aria-hidden="true">▾</span>
+    </button>
+    <div class="plan-body" id="plan-body"></div>
+  </div>
+  <p class="note" id="note"></p>
+  <div id="list"></div>
+</main>
+
+<footer>
+  <button id="reset" type="button"></button>
+  <p class="hint" id="hint"></p>
+</footer>
+
+<script>
+  // ---------- units & formatting (same engine as the recipe book) ----------
+  const U = {
+    g:    { en: ["g","g"],                 fr: ["g","g"],                     zh: ["克","克"],       step: 10 },
+    ml:   { en: ["ml","ml"],               fr: ["ml","ml"],                   zh: ["毫升","毫升"],   step: 10 },
+    pc:   { en: ["",""],                   fr: ["",""],                       zh: ["",""],           step: 0.5 },
+    stalk:{ en: ["stalk","stalks"],        fr: ["tige","tiges"],              zh: ["根","根"],       step: 0.5 },
+    clove:{ en: ["clove","cloves"],        fr: ["gousse","gousses"],          zh: ["瓣","瓣"],       step: 1 },
+    tbsp: { en: ["tbsp","tbsp"],           fr: ["c. à s.","c. à s."],         zh: ["大匙","大匙"],   step: 0.5 },
+    serv: { en: ["serving","servings"],    fr: ["portion","portions"],        zh: ["人份","人份"],   step: 0.5 },
+    bag:  { en: ["bag","bags"],            fr: ["sachet","sachets"],          zh: ["包","包"],       step: 0.5 },
+    bund: { en: ["bundle","bundles"],      fr: ["paquet","paquets"],          zh: ["把","把"],       step: 0.5 },
+    block:{ en: ["block","blocks"],        fr: ["cube","cubes"],              zh: ["塊","塊"],       step: 0.5 },
+    sq:   { en: ["square","squares"],      fr: ["carré","carrés"],            zh: ["格","格"],       step: 0.5 },
+    leaf: { en: ["leaf","leaves"],         fr: ["feuille","feuilles"],        zh: ["片","片"],       step: 0.5 },
+    can:  { en: ["can (300 ml)","cans (300 ml)"], fr: ["canette (300 ml)","canettes (300 ml)"], zh: ["罐（300 毫升）","罐（300 毫升）"], step: 0.5 },
+    jar:  { en: ["jar","jar"],             fr: ["bocal","bocal"],             zh: ["瓶","瓶"],       step: 0.25 },
+    chick:{ en: ["chicken","chickens"],    fr: ["poulet","poulets"],          zh: ["隻","隻"],       step: 0.25 },
+    head: { en: ["small head","small heads"], fr: ["petite tête","petites têtes"], zh: ["小顆","小顆"], step: 0.25 }
+  };
+  const FRACS = { 0.25: "¼", 0.5: "½", 0.75: "¾" };
+  function roundStep(x, s) { return Math.max(s, Math.round(x / s) * s); }
+  function fmtN(x, uk) {
+    const u = U[uk];
+    if (uk === "g" && x >= 1000) return (Math.round(x / 100) / 10) + " kg";
+    if (uk === "ml" && x >= 1000) return (Math.round(x / 100) / 10) + " L";
+    if (uk === "g" || uk === "ml") return roundStep(x, u.step) + "";
+    const r = roundStep(x, u.step);
+    const w = Math.floor(r + 1e-9), rem = Math.round((r - w) * 100) / 100;
+    if (FRACS[rem]) return (w ? w : "") + FRACS[rem];
+    return (Math.round(r * 10) / 10) + "";
+  }
+
+  // ---------- recipes (multiplier targets) ----------
+  // Order = cooking order for the week, by perishability: live clams first, then fish/shrimp, poultry, pork, beef batches.
+  // ×0 = recipe skipped this week (its items disappear from the list).
+  const RECIPES = [
+    { id: "clam",    def: 1, name: { en: "Chili Chicken & Clam Soup", fr: "Soupe poulet & palourdes", zh: "剝皮辣椒蛤蜊雞湯" }, short: { en: "Clam soup", fr: "Soupe palourdes", zh: "雞湯" } },
+    { id: "fish",    def: 1, name: { en: "No-Fry Braised Fish", fr: "Poisson braisé sans friture", zh: "免煎紅燒魚" },      short: { en: "Fish", fr: "Poisson", zh: "紅燒魚" } },
+    { id: "shrimp",  def: 1, name: { en: "Silky Egg & Shrimp", fr: "Œufs soyeux aux crevettes", zh: "滑蛋蝦仁" },          short: { en: "Shrimp", fr: "Crevettes", zh: "蝦仁" } },
+    { id: "wings",   def: 1, name: { en: "Cola Chicken Wings", fr: "Ailes de poulet au cola", zh: "可樂雞翅" },        short: { en: "Wings", fr: "Ailes", zh: "雞翅" } },
+    { id: "noodles", def: 1, name: { en: "Stir-Fried Glass Noodles", fr: "Vermicelles sautés", zh: "五花肉炒冬粉" },        short: { en: "Noodles", fr: "Vermicelles", zh: "冬粉" } },
+    { id: "soup",    def: 2, name: { en: "Braised Beef Noodle Soup", fr: "Soupe de nouilles au bœuf", zh: "紅燒牛肉麵" }, short: { en: "Beef soup", fr: "Soupe bœuf", zh: "牛肉麵" } },
+    { id: "curry",   def: 2, name: { en: "Japanese Beef Curry", fr: "Curry de bœuf japonais", zh: "日式咖哩牛肉" },         short: { en: "Curry", fr: "Curry", zh: "咖哩" } }
+  ];
+
+  // ---------- items ----------
+  // parts: contributions per recipe for a base batch (2 people × 1 cook); they scale with the plan.
+  // q {txt}: fixed text, never scales.
+  // nt: estimated Taipei traditional-market price in NT$ per unit of u (checked 2026-08) —
+  //     displays the rounded amount to ask the vendor for ("give me NT$200 of pork belly").
+  //     Basis: pork belly ~180 NT/斤, beef ~380–400 NT/斤, wings ~110 NT/斤, whole silkie ~550 NT,
+  //     clams ~120 NT/斤, peeled shrimp ~300 NT/斤, grouper fillet ~150 NT/200g pc (斤 = 600 g).
+  //     Adjust these rates to the real stall prices. Weekly meat budget: NT_BUDGET below.
+  const DATA = [
+    { section: { en: "Local Market", fr: "Marché local", zh: "傳統市場" },
+      desc: { en: "Fresh ingredients — buy this week", fr: "Ingrédients frais — à acheter cette semaine", zh: "新鮮食材——本週採買" }, items: [
+      { sub: { en: "Meat & Seafood", fr: "Viande & fruits de mer", zh: "肉類海鮮" }, budget: 1500 },
+      { id: "silkie-chicken", n: { en: "Black-bone (silkie) chicken", fr: "Poulet soie (chair noire)", zh: "烏骨雞" }, u: "chick", nt: 550, parts: [{ r: "clam", q: 0.25 }], use: ["clam"], note: { en: "¼ = 2 legs", fr: "¼ = 2 cuisses", zh: "¼ 隻＝2 支腿" } },
+      { id: "clams", n: { en: "Fresh clams", fr: "Palourdes fraîches", zh: "蛤蜊" }, u: "g", approx: true, nt: 0.2, parts: [{ r: "clam", q: 250 }], use: ["clam"] },
+      { id: "fish-fillets", n: { en: "White fish fillets (grouper)", fr: "Filets de poisson blanc (mérou)", zh: "白肉魚片（石斑）" }, u: "pc", nt: 150, parts: [{ r: "fish", q: 2 }], use: ["fish"], note: { en: "~200 g each", fr: "~200 g pièce", zh: "每片約 200 克" } },
+      { id: "shrimp-peeled", n: { en: "Shrimp (peeled)", fr: "Crevettes décortiquées", zh: "蝦仁" }, u: "g", approx: true, nt: 0.5, parts: [{ r: "shrimp", q: 250 }], use: ["shrimp"], note: { en: "fresh or frozen", fr: "fraîches ou surgelées", zh: "生鮮或冷凍皆可" } },
+      { id: "chicken-wings", n: { en: "Chicken wings", fr: "Ailes de poulet", zh: "雞翅" }, u: "pc", approx: true, nt: 14, parts: [{ r: "wings", q: 8 }], use: ["wings"] },
+      { id: "pork-belly", n: { en: "Pork belly", fr: "Poitrine de porc", zh: "五花肉" }, u: "g", approx: true, nt: 0.3, parts: [{ r: "noodles", q: 300 }], use: ["noodles"] },
+      { id: "beef-brisket", n: { en: "Beef brisket strips", fr: "Poitrine de bœuf en bandes", zh: "牛腩條" }, u: "g", approx: true, nt: 0.63, parts: [{ r: "soup", q: 350 }, { r: "curry", q: 270 }], use: ["soup", "curry"] },
+      { sub: { en: "Produce", fr: "Fruits & légumes", zh: "蔬果" } },
+      { id: "king-oyster", n: { en: "King oyster mushrooms", fr: "Pleurotes du panicaut", zh: "杏鮑菇" }, u: "pc", parts: [{ r: "clam", q: 1 }], use: ["clam"] },
+      { id: "garlic", n: { en: "Garlic", fr: "Ail", zh: "蒜" }, u: "clove", parts: [{ r: "clam", q: 3 }, { r: "wings", q: 2 }], use: ["clam", "wings"] },
+      { id: "ginger", n: { en: "Fresh ginger", fr: "Gingembre frais", zh: "薑" }, q: { txt: { en: "1 knob", fr: "1 morceau", zh: "一大塊" } }, use: ["fish", "wings", "soup"] },
+      { id: "scallions", n: { en: "Scallions (green onions)", fr: "Oignons nouveaux", zh: "蔥" }, u: "stalk", parts: [{ r: "shrimp", q: 2 }, { r: "wings", q: 1 }, { r: "noodles", q: 2 }, { r: "soup", q: 2 }], use: ["shrimp", "wings", "noodles", "soup"] },
+      { id: "eggs", n: { en: "Eggs", fr: "Œufs", zh: "雞蛋" }, u: "pc", parts: [{ r: "shrimp", q: 4 }], use: ["shrimp"] },
+      { id: "carrots", n: { en: "Carrots", fr: "Carottes", zh: "紅蘿蔔" }, u: "pc", approx: true, parts: [{ r: "noodles", q: 0.25 }, { r: "soup", q: 0.5 }, { r: "curry", q: 1 }], use: ["noodles", "soup", "curry"] },
+      { id: "onions", n: { en: "Onions", fr: "Oignons", zh: "洋蔥" }, u: "pc", parts: [{ r: "soup", q: 0.5 }, { r: "curry", q: 0.5 }], use: ["soup", "curry"] },
+      { id: "tomato", n: { en: "Tomato", fr: "Tomate", zh: "番茄" }, u: "pc", parts: [{ r: "soup", q: 0.5 }], use: ["soup"] },
+      { id: "potatoes", n: { en: "Potatoes", fr: "Pommes de terre", zh: "馬鈴薯" }, u: "pc", parts: [{ r: "curry", q: [1, 1.5] }], use: ["curry"] },
+      { id: "broccoli", n: { en: "Broccoli", fr: "Brocoli", zh: "綠花椰菜" }, u: "head", parts: [{ r: "curry", q: 0.5 }], use: ["curry"] }
+    ]},
+    { section: { en: "Uber Eats", fr: "Uber Eats", zh: "Uber Eats" },
+      desc: { en: "Packaged goods to order this week", fr: "Produits d’épicerie à commander cette semaine", zh: "本週要訂的包裝食材" }, items: [
+      { id: "pickled-chili", n: { en: "Pickled peeled green chilies", fr: "Piments verts pelés au vinaigre", zh: "剝皮辣椒" }, u: "jar", parts: [{ r: "clam", q: 0.25 }], use: ["clam"] },
+      { id: "milk", n: { en: "Fresh milk", fr: "Lait frais", zh: "鮮奶" }, u: "ml", approx: true, parts: [{ r: "shrimp", q: 60 }], use: ["shrimp"], note: { en: "smallest bottle", fr: "petite bouteille", zh: "小瓶即可" } },
+      { id: "cola", n: { en: "Cola", fr: "Cola", zh: "可樂" }, u: "can", parts: [{ r: "wings", q: 1 }], use: ["wings"] },
+      { id: "glass-noodles", n: { en: "Glass noodles (mung bean vermicelli)", fr: "Vermicelles de haricot mungo", zh: "冬粉" }, u: "bund", parts: [{ r: "noodles", q: 2 }], use: ["noodles"] },
+      { id: "wheat-noodles", n: { en: "Wheat noodles", fr: "Nouilles de blé", zh: "麵條" }, u: "serv", parts: [{ r: "soup", q: 2 }], use: ["soup"] },
+      { id: "spice-packets", n: { en: "Braising spice bags", fr: "Sachets d’épices à braiser", zh: "滷包" }, u: "bag", parts: [{ r: "soup", q: [0.5, 1] }], use: ["soup"], note: { en: "or homemade — see recipe book", fr: "ou maison — voir livre de recettes", zh: "或自製——見食譜" } },
+      { id: "curry-roux", n: { en: "Japanese curry roux (mild + sweet)", fr: "Roux de curry (doux + sucré)", zh: "咖哩塊（甘口＋甜口）" }, u: "block", parts: [{ r: "curry", q: 1.5 }], use: ["curry"] },
+      { id: "chocolate", n: { en: "Dark chocolate", fr: "Chocolat noir", zh: "黑巧克力" }, u: "sq", parts: [{ r: "curry", q: 0.5 }], use: ["curry"] }
+    ]},
+    { section: { en: "Pantry Check", fr: "Fonds de placard", zh: "庫存檢查" },
+      desc: { en: "Long-life staples — restock only if running low", fr: "Longue conservation — à racheter seulement si le stock est bas", zh: "長效常備品——快用完才補貨" }, items: [
+      { id: "sesame-oil", n: { en: "Sesame oil", fr: "Huile de sésame", zh: "香油" }, q: { txt: { en: "a few drops", fr: "quelques gouttes", zh: "幾滴" } }, use: ["clam"] },
+      { id: "goji", n: { en: "Goji berries", fr: "Baies de goji", zh: "枸杞" }, q: { txt: { en: "1 small handful", fr: "1 petite poignée", zh: "一小把" } }, use: ["clam"] },
+      { id: "rice-wine", n: { en: "Rice wine", fr: "Vin de riz", zh: "米酒" }, u: "ml", approx: true, parts: [{ r: "soup", q: 30 }], use: ["clam", "soup"] },
+      { id: "soy-sauce", n: { en: "Soy sauce", fr: "Sauce soja", zh: "醬油" }, u: "ml", approx: true, parts: [{ r: "fish", q: 60 }, { r: "wings", q: 100 }, { r: "noodles", q: 30 }, { r: "soup", q: 60 }], use: ["fish", "wings", "noodles", "soup"] },
+      { id: "vinegar", n: { en: "Rice vinegar (white or black)", fr: "Vinaigre de riz (blanc ou noir)", zh: "米醋（白醋或烏醋）" }, u: "tbsp", parts: [{ r: "fish", q: 1 }], use: ["fish"] },
+      { id: "rice", n: { en: "Rice", fr: "Riz", zh: "白米" }, u: "serv", parts: [{ r: "fish", q: 2 }, { r: "shrimp", q: 2 }, { r: "curry", q: 2 }], use: ["fish", "shrimp", "curry"] },
+      { id: "sesame-seeds", n: { en: "White sesame seeds", fr: "Sésame blanc", zh: "白芝麻" }, q: { txt: { en: "for garnish", fr: "finition", zh: "點綴用" } }, use: ["wings"] },
+      { id: "shiitake", n: { en: "Dried shiitake mushrooms", fr: "Champignons shiitaké séchés", zh: "乾香菇" }, u: "pc", parts: [{ r: "noodles", q: 2 }], use: ["noodles"] },
+      { id: "mushroom-oyster", n: { en: "Mushroom oyster sauce", fr: "Sauce d’huître aux champignons", zh: "香菇素蠔油" }, u: "tbsp", parts: [{ r: "noodles", q: 1 }], use: ["noodles"] },
+      { id: "dark-soy", n: { en: "Dark soy sauce", fr: "Sauce soja foncée", zh: "老抽" }, u: "tbsp", parts: [{ r: "soup", q: 1 }], use: ["soup"] },
+      { id: "doubanjiang", n: { en: "Spicy bean paste (doubanjiang)", fr: "Pâte de fèves pimentée", zh: "辣豆瓣醬" }, u: "tbsp", parts: [{ r: "soup", q: 1 }], use: ["soup"] },
+      { id: "bay-leaves", n: { en: "Bay leaves", fr: "Feuilles de laurier", zh: "月桂葉" }, u: "leaf", parts: [{ r: "curry", q: [0.5, 1] }], use: ["curry"] },
+      { id: "ice", n: { en: "Ice cubes", fr: "Glaçons", zh: "冰塊" }, q: { txt: { en: "for the curry beef ice bath", fr: "bain glacé du curry", zh: "咖哩牛肉冰鎮用" } }, use: ["curry"] },
+      { id: "oil", n: { en: "Cooking oil", fr: "Huile de cuisson", zh: "食用油" }, q: { txt: { en: "staple", fr: "de base", zh: "常備" } }, use: [] },
+      { id: "salt", n: { en: "Salt", fr: "Sel", zh: "鹽" }, q: { txt: { en: "staple", fr: "de base", zh: "常備" } }, use: [] },
+      { id: "white-pepper", n: { en: "White pepper", fr: "Poivre blanc", zh: "白胡椒" }, q: { txt: { en: "staple", fr: "de base", zh: "常備" } }, use: [] },
+      { id: "chicken-powder", n: { en: "Chicken powder / umami seasoning", fr: "Bouillon de poulet en poudre", zh: "雞粉" }, q: { txt: { en: "to taste", fr: "au goût", zh: "適量" } }, use: [] },
+      { id: "red-beans", n: { en: "Red beans (azuki)", fr: "Haricots rouges (azuki)", zh: "紅豆" }, q: { txt: { en: "1 bag", fr: "1 sachet", zh: "一包" } }, use: [] },
+      { id: "mung-beans", n: { en: "Mung beans (green)", fr: "Haricots mungo (verts)", zh: "綠豆" }, q: { txt: { en: "1 bag", fr: "1 sachet", zh: "一包" } }, use: [] },
+      { id: "soybeans", n: { en: "Soybeans (yellow)", fr: "Graines de soja (jaunes)", zh: "黃豆" }, q: { txt: { en: "1 bag", fr: "1 sachet", zh: "一包" } }, use: [] }
+    ]},
+    { section: { en: "Living", fr: "Maison", zh: "生活用品" },
+      desc: { en: "Household & toiletries — restock what's running low", fr: "Ménage & hygiène — racheter ce qui vient à manquer", zh: "居家與盥洗用品——快用完就補" }, items: [
+      { id: "toilet-paper", n: { en: "Toilet paper", fr: "Papier toilette", zh: "衛生紙" }, q: { txt: { en: "1 pack", fr: "1 paquet", zh: "一串" } }, use: [] },
+      { id: "tissues", n: { en: "Tissues", fr: "Mouchoirs", zh: "面紙" }, q: { txt: { en: "1 pack", fr: "1 paquet", zh: "一包" } }, use: [] },
+      { id: "wipes", n: { en: "Wet wipes", fr: "Lingettes", zh: "濕紙巾" }, q: { txt: { en: "1 pack", fr: "1 paquet", zh: "一包" } }, use: [] },
+      { id: "laundry-detergent", n: { en: "Laundry detergent", fr: "Lessive (machine)", zh: "洗衣精" }, q: { txt: { en: "1 bottle or refill", fr: "1 bidon ou recharge", zh: "一瓶或補充包" } }, use: [] },
+      { id: "laundry-beads", n: { en: "Laundry scent beads (Lenor)", fr: "Billes parfumantes (Lenor)", zh: "衣物香香豆（Lenor 蘭諾）" }, q: { txt: { en: "in-drum, 1 bottle", fr: "dans le tambour, 1 flacon", zh: "投入洗衣槽，一瓶" } }, use: [] },
+      { id: "shampoo", n: { en: "Shampoo", fr: "Shampoing", zh: "洗髮精" }, q: { txt: { en: "1 bottle", fr: "1 flacon", zh: "一瓶" } }, use: [] },
+      { id: "face-wash", n: { en: "Face wash", fr: "Nettoyant visage", zh: "洗面乳" }, q: { txt: { en: "1 tube", fr: "1 tube", zh: "一條" } }, use: [] },
+      { id: "body-wash", n: { en: "Body wash", fr: "Gel douche", zh: "沐浴乳" }, q: { txt: { en: "1 bottle", fr: "1 flacon", zh: "一瓶" } }, use: [] },
+      { id: "sponge", n: { en: "Kitchen sponges", fr: "Éponges", zh: "菜瓜布" }, q: { txt: { en: "2–3", fr: "2–3", zh: "2–3 個" } }, use: [] },
+      { id: "trash-bags", n: { en: "Trash bags", fr: "Sacs poubelle", zh: "垃圾袋" }, q: { txt: { en: "1 roll", fr: "1 rouleau", zh: "一捲" } }, use: [] },
+      { id: "dusting-sheets", n: { en: "Anti-mite electrostatic dusting sheets", fr: "Lingettes électrostatiques antiacariens", zh: "靜電除塵紙（除蟎）" }, q: { txt: { en: "1 dry + 1 wet", fr: "1 sec + 1 humide", zh: "乾式、濕式各一" } }, use: [] }
+    ]}
+  ];
+
+  const T = {
+    title: { en: "Weekly Shop", fr: "Courses de la semaine", zh: "本週採買" },
+    plan: { en: "This week’s plan", fr: "Plan de la semaine", zh: "本週計畫" },
+    people: { en: "Number of people", fr: "Nombre de personnes", zh: "用餐人數" },
+    ppl: { en: "ppl", fr: "pers.", zh: "人" },
+    planHint: { en: "×N = how many times that recipe is cooked this week — ×0 removes it from the list. Quantities below update automatically.",
+                fr: "×N = combien de fois la recette est cuisinée cette semaine — ×0 la retire de la liste. Les quantités se mettent à jour automatiquement.",
+                zh: "×N＝這道菜本週煮幾次——×0 表示這週不煮、不列入清單。以下份量會自動更新。" },
+    note: { en: "<b>Cook once, eat twice:</b> recipes set to ×2 are made as one batch covering both nights.",
+            fr: "<b>Cuisiner une fois, manger deux fois :</b> les recettes en ×2 se préparent en une seule marmite qui couvre les deux soirs.",
+            zh: "<b>一次煮兩餐：</b>設為 ×2 的食譜一鍋煮好，兩晚份量。" },
+    reset: { en: "New week — uncheck everything", fr: "Nouvelle semaine — tout décocher", zh: "新的一週——全部取消勾選" },
+    resetConfirm: { en: "Sure? Tap again to uncheck all", fr: "Sûr ? Retouchez pour tout décocher", zh: "確定嗎？再點一次全部取消" },
+    hint: { en: "Ticks are saved on this device — safe to close and reopen at the store.",
+            fr: "Les coches sont enregistrées sur cet appareil — vous pouvez fermer et rouvrir au magasin.",
+            zh: "勾選會存在這台裝置上——關掉再開也沒問題。" }
+  };
+
+  // ---------- state ----------
+  const KEY = "weekly-shop-v1";
+  const PKEY = "weekly-shop-prefs-v1";
+  let checked = {};
+  try { checked = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { checked = {}; }
+  const saveChecked = () => { try { localStorage.setItem(KEY, JSON.stringify(checked)); } catch (e) {} };
+  let prefs = { p: 2, m: {}, lang: "en" };
+  try { Object.assign(prefs, JSON.parse(localStorage.getItem(PKEY)) || {}); } catch (e) {}
+  for (const r of RECIPES) if (![0,1,2,3].includes(prefs.m[r.id])) prefs.m[r.id] = r.def;
+  if (!["en","fr","zh"].includes(prefs.lang)) prefs.lang = "en";
+  if (!(prefs.p >= 1 && prefs.p <= 8)) prefs.p = 2;
+  const savePrefs = () => { try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (e) {} };
+  const factor = rid => (prefs.p / 2) * prefs.m[rid];
+
+  // Round to a vendor-friendly NT$ amount (nearest 10).
+  const ntAsk = x => Math.max(10, Math.round(x / 10) * 10);
+  const ntFmt = (x, lang) => (lang === "zh" ? "約 NT$" : "≈ NT$") + ntAsk(x);
+  function scaledMid(it) {
+    let lo = 0, hi = 0;
+    for (const part of it.parts) {
+      const f = factor(part.r);
+      const range = Array.isArray(part.q) ? part.q : [part.q, part.q];
+      lo += range[0] * f; hi += range[1] * f;
+    }
+    return (lo + hi) / 2;
+  }
+  function meatTotal() {
+    let t = 0;
+    for (const sec of DATA) for (const it of sec.items)
+      if (it.nt && it.parts && isActive(it)) t += scaledMid(it) * it.nt;
+    return t;
+  }
+  function itemQty(it, lang) {
+    if (it.q && it.q.txt) return it.q.txt[lang];
+    let lo = 0, hi = 0;
+    for (const part of it.parts) {
+      const f = factor(part.r);
+      const range = Array.isArray(part.q) ? part.q : [part.q, part.q];
+      lo += range[0] * f; hi += range[1] * f;
+    }
+    const a = fmtN(lo, it.u), b = fmtN(hi, it.u);
+    let s = a === b ? a : a + "–" + b;
+    const label = U[it.u][lang][hi > 1 ? 1 : 0];
+    if (label && !((it.u === "g" || it.u === "ml") && hi >= 1000)) s += " " + label;
+    if (it.note) s += " · " + it.note[lang];
+    if (it.nt) s += " · " + ntFmt(((lo + hi) / 2) * it.nt, lang);
+    return (it.approx ? "~" : "") + s;
+  }
+  // An item is on the list only if at least one recipe using it is cooked this week (×0 hides it).
+  // Untracked staples (empty use) always stay.
+  function isActive(it) {
+    if (it.parts) {
+      let hi = 0;
+      for (const part of it.parts) {
+        const range = Array.isArray(part.q) ? part.q : [part.q, part.q];
+        hi += range[1] * factor(part.r);
+      }
+      return hi > 0;
+    }
+    if (!it.use.length) return true;
+    return it.use.some(rid => prefs.m[rid] > 0);
+  }
+  function useLabel(it, lang) {
+    return it.use.filter(rid => prefs.m[rid] > 0)
+      .map(rid => RECIPES.find(r => r.id === rid).short[lang]).join(" · ");
+  }
+
+  // ---------- plan panel ----------
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
+  let planOpen = false;
+  const planEl = document.getElementById("plan");
+  const planToggle = document.getElementById("plan-toggle");
+  planToggle.addEventListener("click", () => {
+    planOpen = !planOpen;
+    planEl.classList.toggle("open", planOpen);
+    planToggle.setAttribute("aria-expanded", planOpen ? "true" : "false");
+  });
+
+  function renderPlan() {
+    const L = prefs.lang;
+    document.getElementById("plan-title").textContent = T.plan[L];
+    document.getElementById("plan-sum").textContent =
+      prefs.p + " " + T.ppl[L] + " · " + RECIPES.map(r => "×" + prefs.m[r.id]).join(" ");
+    const body = document.getElementById("plan-body");
+    body.innerHTML = "";
+    const ppl = el("div", "ppl");
+    ppl.appendChild(el("span", "lbl", T.people[L]));
+    const minus = el("button", "step-btn", "−"); minus.type = "button"; minus.disabled = prefs.p <= 1;
+    const num = el("b", null, prefs.p);
+    const plus = el("button", "step-btn", "+"); plus.type = "button"; plus.disabled = prefs.p >= 8;
+    minus.onclick = () => { if (prefs.p > 1) { prefs.p--; savePrefs(); renderAll(); } };
+    plus.onclick = () => { if (prefs.p < 8) { prefs.p++; savePrefs(); renderAll(); } };
+    ppl.append(minus, num, plus);
+    body.appendChild(ppl);
+    for (const r of RECIPES) {
+      const row = el("div", "mrow");
+      row.appendChild(el("span", "rname", r.name[L]));
+      const seg = el("div", "seg");
+      seg.setAttribute("role", "group");
+      seg.setAttribute("aria-label", r.name[L]);
+      for (const v of [0, 1, 2, 3]) {
+        const b = el("button", prefs.m[r.id] === v ? "on" : "", "×" + v);
+        b.type = "button";
+        b.setAttribute("aria-pressed", prefs.m[r.id] === v ? "true" : "false");
+        b.onclick = () => { prefs.m[r.id] = v; savePrefs(); renderAll(); };
+        seg.appendChild(b);
+      }
+      row.appendChild(seg);
+      body.appendChild(row);
+    }
+    body.appendChild(el("p", "plan-hint", T.planHint[L]));
+  }
+
+  // ---------- list ----------
+  const CHECK_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5 L6 12 L13.5 4"/></svg>';
+  const listEl = document.getElementById("list");
+  let sections = [];
+
+  function makeItem(it, lang) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "item";
+    btn.dataset.id = it.id;
+    btn.setAttribute("aria-pressed", checked[it.id] ? "true" : "false");
+    if (checked[it.id]) btn.classList.add("done");
+    const use = useLabel(it, lang);
+    btn.innerHTML =
+      '<span class="tick">' + CHECK_SVG + '</span>' +
+      '<span class="txt"><span class="name"></span><span class="qty"></span></span>' +
+      (use ? '<span class="use"></span>' : '');
+    btn.querySelector(".name").textContent = it.n[lang];
+    btn.querySelector(".qty").textContent = itemQty(it, lang);
+    if (use) btn.querySelector(".use").textContent = use;
+    btn.addEventListener("click", () => {
+      const on = !checked[it.id];
+      checked[it.id] = on;
+      if (!on) delete checked[it.id];
+      btn.classList.toggle("done", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      saveChecked();
+      refresh();
+    });
+    return btn;
+  }
+
+  function renderList() {
+    const L = prefs.lang;
+    listEl.innerHTML = "";
+    sections = [];
+    for (const sec of DATA) {
+      const secEl = document.createElement("section");
+      const head = el("div", "sec-head");
+      head.append(el("h2", null, sec.section[L]), el("span", "sec-count"));
+      secEl.appendChild(head);
+      secEl.appendChild(el("p", "sec-desc", sec.desc[L]));
+      let box = null, pendingSub = null;
+      const ids = [];
+      for (const entry of sec.items) {
+        if (entry.sub) {
+          pendingSub = entry;
+          box = null;
+          continue;
+        }
+        if (!isActive(entry)) continue;
+        if (pendingSub) {
+          const lbl = el("div", "sub-label");
+          lbl.appendChild(el("span", null, pendingSub.sub[L]));
+          if (pendingSub.budget) {
+            const t = meatTotal();
+            lbl.appendChild(el("span", "nt-total" + (t > pendingSub.budget ? " over" : ""),
+              ntFmt(t, L) + " / " + pendingSub.budget));
+          }
+          secEl.appendChild(lbl);
+          pendingSub = null;
+          box = null;
+        }
+        if (!box) { box = el("div", "items"); secEl.appendChild(box); }
+        box.appendChild(makeItem(entry, L));
+        ids.push(entry.id);
+      }
+      if (!ids.length) continue;
+      listEl.appendChild(secEl);
+      sections.push({ chip: head.querySelector(".sec-count"), ids });
+    }
+  }
+
+  const totalEl = document.getElementById("total");
+  const doneEl = document.getElementById("done");
+  const fillEl = document.getElementById("fill");
+
+  function refresh() {
+    const visible = sections.flatMap(s => s.ids);
+    const done = visible.filter(id => checked[id]).length;
+    doneEl.textContent = done;
+    totalEl.textContent = visible.length;
+    fillEl.style.width = (visible.length ? done / visible.length * 100 : 0) + "%";
+    for (const s of sections) {
+      const d = s.ids.filter(id => checked[id]).length;
+      s.chip.textContent = d + "/" + s.ids.length;
+      s.chip.classList.toggle("full", d === s.ids.length);
+    }
+  }
+
+  // ---------- reset ----------
+  const resetBtn = document.getElementById("reset");
+  let armTimer = null;
+  resetBtn.addEventListener("click", () => {
+    if (!resetBtn.classList.contains("armed")) {
+      resetBtn.classList.add("armed");
+      resetBtn.textContent = T.resetConfirm[prefs.lang];
+      armTimer = setTimeout(() => {
+        resetBtn.classList.remove("armed");
+        resetBtn.textContent = T.reset[prefs.lang];
+      }, 3500);
+      return;
+    }
+    clearTimeout(armTimer);
+    checked = {};
+    saveChecked();
+    document.querySelectorAll(".item.done").forEach(b => {
+      b.classList.remove("done");
+      b.setAttribute("aria-pressed", "false");
+    });
+    resetBtn.classList.remove("armed");
+    resetBtn.textContent = T.reset[prefs.lang];
+    refresh();
+  });
+
+  // ---------- language & boot ----------
+  function renderAll() {
+    const L = prefs.lang;
+    document.getElementById("title").textContent = T.title[L];
+    for (const k of ["en","fr","zh"]) document.getElementById("lang-" + k).className = L === k ? "on" : "";
+    document.getElementById("note").innerHTML = T.note[L];
+    resetBtn.classList.remove("armed");
+    clearTimeout(armTimer);
+    resetBtn.textContent = T.reset[L];
+    document.getElementById("hint").textContent = T.hint[L];
+    renderPlan();
+    renderList();
+    refresh();
+  }
+  document.getElementById("lang-en").onclick = () => { prefs.lang = "en"; savePrefs(); renderAll(); };
+  document.getElementById("lang-fr").onclick = () => { prefs.lang = "fr"; savePrefs(); renderAll(); };
+  document.getElementById("lang-zh").onclick = () => { prefs.lang = "zh"; savePrefs(); renderAll(); };
+  renderAll();
+</script>

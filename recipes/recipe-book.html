@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>📖</text></svg>">
+<meta name="robots" content="noindex, nofollow">
+<title>Weekly Recipe Book</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root {
+    --ground: #faf8f4;
+    --card: #ffffff;
+    --ink: #2b2620;
+    --muted: #8c8577;
+    --accent: #8a6d3b;
+    --accent-ink: #ffffff;
+    --border: #e6e0d5;
+    --soft: #f4efe6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1c1917; --card: #26221d; --ink: #ece7dd; --muted: #9a9184;
+      --accent: #c9a468; --accent-ink: #1c1917; --border: #3a342b; --soft: #211d18;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #1c1917; --card: #26221d; --ink: #ece7dd; --muted: #9a9184;
+    --accent: #c9a468; --accent-ink: #1c1917; --border: #3a342b; --soft: #211d18;
+  }
+  :root[data-theme="light"] {
+    --ground: #faf8f4; --card: #ffffff; --ink: #2b2620; --muted: #8c8577;
+    --accent: #8a6d3b; --accent-ink: #ffffff; --border: #e6e0d5; --soft: #f4efe6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.45; padding-bottom: 48px;
+  }
+
+  .top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--ground); border-bottom: 1px solid var(--border);
+    padding: 12px 18px;
+  }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 640px; margin: 0 auto; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 1.4rem; letter-spacing: 0.2px; min-width: 0; }
+  .lang { display: flex; flex: 0 0 auto; border: 1.5px solid var(--accent); border-radius: 999px; overflow: hidden; }
+  .lang button {
+    font: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--accent); background: none; border: none; cursor: pointer;
+    min-width: 48px; height: 28px; padding: 0; text-align: center;
+  }
+  .lang button.on { background: var(--accent); color: var(--accent-ink); }
+  .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  main { max-width: 640px; margin: 0 auto; padding: 16px 14px 0; }
+
+  /* ---- Plan panel ---- */
+  .plan {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 22px;
+  }
+  .plan h2 { font-family: Georgia, serif; font-weight: 400; font-size: 1.1rem; margin-bottom: 10px; }
+  .ppl { display: flex; align-items: center; gap: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+  .ppl .lbl { font-size: 0.9rem; color: var(--muted); flex: 1; }
+  .step-btn {
+    width: 34px; height: 34px; border-radius: 10px;
+    border: 1.5px solid var(--accent); background: none; color: var(--accent);
+    font-size: 1.15rem; font-weight: 700; cursor: pointer; line-height: 1;
+  }
+  .step-btn:disabled { opacity: 0.35; cursor: default; }
+  .step-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ppl b { font-size: 1.25rem; min-width: 26px; text-align: center; font-variant-numeric: tabular-nums; }
+  .mrow { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+  .mrow:last-of-type { border-bottom: none; }
+  .mrow .rname { flex: 1; font-size: 0.92rem; font-weight: 600; }
+  .seg { display: flex; border: 1.5px solid var(--accent); border-radius: 9px; overflow: hidden; }
+  .seg button {
+    font: inherit; font-size: 0.82rem; font-weight: 700; padding: 5px 11px;
+    background: none; border: none; color: var(--accent); cursor: pointer;
+    border-left: 1.5px solid var(--accent);
+  }
+  .seg button:first-child { border-left: none; }
+  .seg button.on { background: var(--accent); color: var(--accent-ink); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .plan-hint { font-size: 0.76rem; color: var(--muted); margin-top: 10px; }
+
+  /* ---- Cover menu ---- */
+  .menu {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden; margin-bottom: 14px;
+  }
+  .menu a {
+    display: flex; align-items: baseline; gap: 12px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); text-decoration: none; color: inherit;
+  }
+  .menu a:last-child { border-bottom: none; }
+  .menu .d {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--accent); font-weight: 700; min-width: 74px;
+  }
+  .menu .dish { font-family: Georgia, serif; font-size: 1rem; flex: 1; }
+  .menu .lo { color: var(--muted); font-size: 0.78rem; }
+  .note {
+    font-size: 0.82rem; color: var(--muted);
+    padding: 10px 12px; border-left: 3px solid var(--accent);
+    background: var(--card); border-radius: 0 8px 8px 0; margin-bottom: 26px;
+  }
+  .note b { color: var(--ink); }
+
+  /* ---- Recipe ---- */
+  .recipe {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px 16px 18px; margin-bottom: 26px; scroll-margin-top: 70px;
+  }
+  .recipe.off { opacity: 0.55; }
+  .r-head { border-bottom: 2.5px solid var(--ink); padding-bottom: 10px; margin-bottom: 14px; }
+  .day-badge {
+    display: inline-block; background: var(--accent); color: var(--accent-ink);
+    border-radius: 999px; font-size: 0.68rem; letter-spacing: 1.2px;
+    text-transform: uppercase; font-weight: 700; padding: 3px 12px; margin-bottom: 8px;
+  }
+  h3.r-title { font-family: Georgia, serif; font-size: 1.45rem; font-weight: 400; text-wrap: balance; }
+  .r-meta { color: var(--muted); font-size: 0.82rem; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .r-meta b { color: var(--ink); }
+  .r-batch { color: var(--accent); font-weight: 600; }
+
+  .ing {
+    background: var(--ground); border: 1px solid var(--border); border-radius: 12px;
+    padding: 13px 16px; margin-bottom: 16px;
+  }
+  .ing h4 {
+    font-family: Georgia, serif; font-size: 1rem; font-weight: 400;
+    border-bottom: 1.5px solid var(--ink); padding-bottom: 4px; margin-bottom: 6px;
+  }
+  .ing h5 {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--accent); margin: 10px 0 2px;
+  }
+  .ing ul { list-style: none; }
+  .ing li {
+    display: flex; justify-content: space-between; gap: 12px; align-items: baseline;
+    padding: 4px 0; border-bottom: 1px dotted var(--border); font-size: 0.9rem;
+  }
+  .ing li:last-child { border-bottom: none; }
+  .ing .q { color: var(--accent); font-weight: 600; text-align: right; white-space: nowrap; }
+  .ing .subnote { font-size: 0.74rem; color: var(--muted); margin-top: 6px; }
+
+  .steps ol { list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; position: relative; padding: 0 0 14px 42px; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--ink); color: var(--ground);
+    font-size: 0.92rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps li b { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+  .steps li p { font-size: 0.9rem; color: var(--ink); }
+  .tipbox {
+    background: var(--soft); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.84rem; margin-top: 4px;
+  }
+  .tipbox b { color: var(--accent); }
+  .backtop { display: inline-block; margin-top: 12px; font-size: 0.8rem; color: var(--accent); text-decoration: none; font-weight: 600; }
+</style>
+
+<header class="top" id="top">
+  <div class="head-row">
+    <h1 id="title">Weekly Recipe Book</h1>
+    <div class="lang" role="group" aria-label="Language">
+      <button id="lang-en" type="button">EN</button>
+      <button id="lang-fr" type="button">FR</button>
+      <button id="lang-zh" type="button">中文</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="plan" id="plan"></section>
+  <nav class="menu" id="menu"></nav>
+  <p class="note" id="covernote"></p>
+  <div id="recipes"></div>
+</main>
+
+<script>
+  // ---------- units & formatting ----------
+  const U = {
+    g:    { en: ["g","g"],                 fr: ["g","g"],                     zh: ["克","克"],       step: 10 },
+    ml:   { en: ["ml","ml"],               fr: ["ml","ml"],                   zh: ["毫升","毫升"],   step: 10 },
+    pc:   { en: ["",""],                   fr: ["",""],                       zh: ["",""],           step: 0.5 },
+    slice:{ en: ["slice","slices"],        fr: ["tranche","tranches"],        zh: ["片","片"],       step: 0.5 },
+    stalk:{ en: ["stalk","stalks"],        fr: ["tige","tiges"],              zh: ["根","根"],       step: 0.5 },
+    clove:{ en: ["clove","cloves"],        fr: ["gousse","gousses"],          zh: ["瓣","瓣"],       step: 1 },
+    tbsp: { en: ["tbsp","tbsp"],           fr: ["c. à s.","c. à s."],         zh: ["大匙","大匙"],   step: 0.5 },
+    serv: { en: ["serving","servings"],    fr: ["portion","portions"],        zh: ["人份","人份"],   step: 0.5 },
+    bag:  { en: ["bag","bags"],            fr: ["sachet","sachets"],          zh: ["包","包"],       step: 0.5 },
+    bund: { en: ["bundle","bundles"],      fr: ["paquet","paquets"],          zh: ["把","把"],       step: 0.5 },
+    block:{ en: ["block","blocks"],        fr: ["cube","cubes"],              zh: ["塊","塊"],       step: 0.5 },
+    sq:   { en: ["square","squares"],      fr: ["carré","carrés"],            zh: ["格","格"],       step: 0.5 },
+    leaf: { en: ["leaf","leaves"],         fr: ["feuille","feuilles"],        zh: ["片","片"],       step: 0.5 },
+    can:  { en: ["can (300 ml)","cans (300 ml)"], fr: ["canette (300 ml)","canettes (300 ml)"], zh: ["罐（300 毫升）","罐（300 毫升）"], step: 0.5 },
+    jar:  { en: ["jar","jar"],             fr: ["bocal","bocal"],             zh: ["瓶","瓶"],       step: 0.25 },
+    chick:{ en: ["chicken","chickens"],    fr: ["poulet","poulets"],          zh: ["隻","隻"],       step: 0.25 },
+    head: { en: ["small head","small heads"], fr: ["petite tête","petites têtes"], zh: ["小顆","小顆"], step: 0.25 }
+  };
+  const FRACS = { 0.25: "¼", 0.5: "½", 0.75: "¾" };
+  function roundStep(x, s) { return Math.max(s, Math.round(x / s) * s); }
+  function fmtN(x, uk) {
+    const u = U[uk];
+    if (uk === "g" && x >= 1000) return (Math.round(x / 100) / 10) + " kg";
+    if (uk === "ml" && x >= 1000) return (Math.round(x / 100) / 10) + " L";
+    if (uk === "g" || uk === "ml") return roundStep(x, u.step) + "";
+    const r = roundStep(x, u.step);
+    const w = Math.floor(r + 1e-9), rem = Math.round((r - w) * 100) / 100;
+    if (FRACS[rem]) return (w ? w : "") + FRACS[rem];
+    return (Math.round(r * 10) / 10) + "";
+  }
+  // q: number | [lo,hi] | {txt:{en,fr,zh}}   f: scale factor
+  function fmtQ(q, uk, f, approx, lang) {
+    if (q && q.txt) return q.txt[lang];
+    const range = Array.isArray(q) ? q : [q, q];
+    const lo = range[0] * f, hi = range[1] * f;
+    const a = fmtN(lo, uk), b = fmtN(hi, uk);
+    let s = a === b ? a : a + "–" + b;
+    const u = U[uk];
+    const label = u[lang][hi > 1 ? 1 : 0];
+    if (label && !((uk === "g" || uk === "ml") && hi >= 1000)) s += " " + label;
+    return (approx ? "~" : "") + s;
+  }
+
+  // ---------- content ----------
+  const RECIPES = [
+    {
+      id: "clam", def: 1,
+      name: { en: "Chili Chicken & Clam Soup", fr: "Soupe de poulet aux palourdes et piments", zh: "剝皮辣椒蛤蜊雞湯" },
+      short: { en: "Clam soup", fr: "Soupe palourdes", zh: "雞湯" },
+      time: "~45 min",
+      note: { en: "Taiwanese pickled-chili broth with silkie chicken", fr: "Bouillon taïwanais aux piments au vinaigre et poulet soie", zh: "台式剝皮辣椒湯底配烏骨雞" },
+      groups: [
+        { label: null, items: [
+          { n: { en: "Black-bone (silkie) chicken", fr: "Poulet soie (chair noire)", zh: "烏骨雞" }, q: 0.25, u: "chick" },
+          { n: { en: "Fresh clams", fr: "Palourdes fraîches", zh: "蛤蜊" }, q: 250, u: "g", approx: true },
+          { n: { en: "King oyster mushroom, thick slices", fr: "Pleurote du panicaut, en tranches épaisses", zh: "杏鮑菇（厚片）" }, q: 1, u: "pc" },
+          { n: { en: "Pickled peeled green chilies (bōpí làjiāo), with brine", fr: "Piments verts pelés au vinaigre (bōpí làjiāo), avec la saumure", zh: "剝皮辣椒（連湯汁）" }, q: 0.25, u: "jar" },
+          { n: { en: "Goji berries", fr: "Baies de goji", zh: "枸杞" }, q: { txt: { en: "1 small handful", fr: "1 petite poignée", zh: "一小把" } } },
+          { n: { en: "Garlic", fr: "Ail", zh: "蒜" }, q: 3, u: "clove" },
+          { n: { en: "Sesame oil", fr: "Huile de sésame", zh: "香油" }, q: { txt: { en: "3–5 drops", fr: "3–5 gouttes", zh: "3–5 滴" } } },
+          { n: { en: "Rice wine", fr: "Vin de riz", zh: "米酒" }, q: { txt: { en: "3–5 drops", fr: "3–5 gouttes", zh: "3–5 滴" } } },
+          { n: { en: "Water", fr: "Eau", zh: "水" }, q: { txt: { en: "enough to cover", fr: "à hauteur", zh: "蓋過食材" } } }
+        ]}
+      ],
+      steps: [
+        { t: { en: "Purge the clams", fr: "Purger les palourdes", zh: "吐沙" },
+          d: { en: "Soak the clams in salted water for about an hour so they spit out their sand.",
+               fr: "Faites tremper les palourdes environ 1 heure dans de l’eau salée pour qu’elles rejettent leur sable.",
+               zh: "蛤蜊泡鹽水約 1 小時吐沙。" } },
+        { t: { en: "Wash & blanch the chicken", fr: "Laver et blanchir le poulet", zh: "洗雞汆燙" },
+          d: { en: "The classic prep for any meat: wash the chicken, dip it briefly into boiling water, rinse it clean again and set aside.",
+               fr: "La préparation classique pour toute viande : lavez le poulet, plongez-le brièvement dans l’eau bouillante, rincez-le à nouveau et réservez.",
+               zh: "處理肉類的經典步驟：雞肉洗淨，滾水略燙，再沖洗乾淨備用。" } },
+        { t: { en: "Cook the clams apart", fr: "Cuire les palourdes à part", zh: "另煮蛤蜊" },
+          d: { en: "Simmer the clams in a small pot of water just until they open, then lift them out and set aside. Let the cooking water settle and pour it off gently, leaving the sand at the bottom — keep this clam broth.",
+               fr: "Faites cuire les palourdes dans une petite casserole d’eau juste jusqu’à ouverture, puis sortez-les et réservez-les. Laissez l’eau de cuisson reposer et versez-la doucement en laissant le sable au fond — gardez ce bouillon de palourdes.",
+               zh: "小鍋加水煮蛤蜊，開口即撈出備用。煮蛤蜊的水靜置沉澱後輕輕倒出——沙留鍋底——蛤蜊高湯留用。" } },
+        { t: { en: "Sauté the aromatics", fr: "Faire revenir les aromates", zh: "炒香配料" },
+          d: { en: "In the soup pot, lightly brown the king oyster slices and the garlic in a touch of oil. Add the pickled green chilies with a little of their brine and stir-fry briefly to wake up their aroma.",
+               fr: "Dans la marmite, faites légèrement dorer les tranches de pleurote et l’ail dans un filet d’huile. Ajoutez les piments verts pelés avec un peu de leur saumure et faites-les revenir brièvement pour réveiller leurs arômes.",
+               zh: "湯鍋中少許油，將杏鮑菇片與蒜瓣略煎上色。加入剝皮辣椒和少許湯汁，略炒出香氣。" } },
+        { t: { en: "Build the soup", fr: "Monter la soupe", zh: "組湯" },
+          d: { en: "Pour in the reserved clam broth, add the blanched chicken, then enough water to cover it.",
+               fr: "Versez le bouillon de palourdes réservé, ajoutez le poulet blanchi, puis de l’eau à hauteur.",
+               zh: "倒入預留的蛤蜊高湯，放入汆燙好的雞肉，再加水蓋過。" } },
+        { t: { en: "Season and simmer", fr: "Assaisonner et mijoter", zh: "調味燉煮" },
+          d: { en: "Add the goji berries, sesame oil and rice wine. Boil for about 15 minutes, then reduce to medium heat and simmer 15 minutes more.",
+               fr: "Ajoutez les baies de goji, l’huile de sésame et le vin de riz. Faites bouillir environ 15 minutes, puis passez à feu moyen et laissez mijoter encore 15 minutes.",
+               zh: "加入枸杞、香油、米酒。大火煮約 15 分鐘，轉中火再煮 15 分鐘。" } },
+        { t: { en: "Finish", fr: "Finir", zh: "完成" },
+          d: { en: "Slip the clams back in 3–5 minutes before serving, just to reheat them so the meat doesn’t fall from the shells. Serve hot.",
+               fr: "Remettez les palourdes 3 à 5 minutes avant de servir, juste pour les réchauffer et que la chair ne se détache pas des coquilles. Servez bien chaud.",
+               zh: "上桌前 3–5 分鐘把蛤蜊放回鍋中溫熱即可，以免肉脫殼。趁熱享用。" } }
+      ],
+      tip: { en: "Taste before salting — the chili brine and the clam broth are already savoury.",
+             fr: "Goûtez avant de saler : la saumure des piments et le bouillon de palourdes sont déjà bien savoureux.",
+             zh: "加鹽前先試味——剝皮辣椒湯汁和蛤蜊高湯已經很鮮。" }
+    },
+    {
+      id: "fish", def: 1,
+      name: { en: "No-Fry Braised Fish", fr: "Poisson braisé sans friture", zh: "免煎紅燒魚" },
+      short: { en: "Fish", fr: "Poisson", zh: "紅燒魚" },
+      time: "~15 min",
+      note: { en: "Japanese-style braise — no frying, no smoke", fr: "Braisage à la japonaise — sans friture ni fumée", zh: "日式煮魚法——免煎免油煙" },
+      groups: [
+        { label: null, items: [
+          { n: { en: "White fish fillets (grouper or similar), ~200 g each", fr: "Filets de poisson blanc (mérou ou similaire), ~200 g pièce", zh: "白肉魚片（石斑或類似），每片約 200 克" }, q: 2, u: "pc" },
+          { n: { en: "Ginger, in fine strips", fr: "Gingembre en fine julienne", zh: "薑絲" }, q: { txt: { en: "1 knob", fr: "1 morceau", zh: "一塊" } } },
+          { n: { en: "Soy sauce", fr: "Sauce soja", zh: "醬油" }, q: 4, u: "tbsp" },
+          { n: { en: "Rice vinegar (white or black)", fr: "Vinaigre de riz (blanc ou noir)", zh: "米醋（白醋或烏醋）" }, q: 1, u: "tbsp" },
+          { n: { en: "Water", fr: "Eau", zh: "水" }, q: 400, u: "ml" },
+          { n: { en: "Cooking oil", fr: "Huile de cuisson", zh: "食用油" }, q: 1, u: "tbsp" },
+          { n: { en: "Cooked rice", fr: "Riz cuit", zh: "白飯" }, q: 2, u: "serv" }
+        ]}
+      ],
+      steps: [
+        { t: { en: "Prep the fish", fr: "Préparer le poisson", zh: "處理魚片" },
+          d: { en: "Thaw the fillets if frozen, rinse and pat them dry, then score the flesh with a few diagonal cuts so the sauce can penetrate.",
+               fr: "Décongelez les filets si besoin, rincez-les et séchez-les, puis entaillez la chair de quelques incisions en diagonale pour que la sauce pénètre.",
+               zh: "魚片解凍後洗淨擦乾，魚身斜劃幾刀，讓醬汁入味。" } },
+        { t: { en: "Mix the braising sauce", fr: "Préparer la sauce", zh: "調醬汁" },
+          d: { en: "Mix the soy sauce with the water — taste and adjust the saltiness — then stir in the vinegar (white or black both work).",
+               fr: "Mélangez la sauce soja avec l’eau — goûtez et ajustez la salinité — puis incorporez le vinaigre (blanc ou noir, les deux fonctionnent).",
+               zh: "醬油加水調勻——先試鹹淡——再加入米醋（白醋或烏醋皆可）。" } },
+        { t: { en: "Warm the ginger", fr: "Chauffer le gingembre", zh: "溫薑絲" },
+          d: { en: "Heat the oil over low heat and gently warm the ginger strips without letting them brown.",
+               fr: "Faites chauffer l’huile à feu doux et laissez tiédir la julienne de gingembre sans la laisser colorer.",
+               zh: "小火熱油，薑絲輕輕加熱出香，不要焦。" } },
+        { t: { en: "Boil the sauce", fr: "Porter la sauce à ébullition", zh: "煮滾醬汁" },
+          d: { en: "Pour the sauce mixture into the pan and bring it to a boil.",
+               fr: "Versez la sauce dans la poêle et portez à ébullition.",
+               zh: "倒入醬汁，煮至沸騰。" } },
+        { t: { en: "Braise", fr: "Braiser", zh: "燜煮" },
+          d: { en: "Lay the fillets in the pan, cover, and cook over medium-low heat for 4 minutes.",
+               fr: "Déposez les filets dans la poêle, couvrez et laissez cuire à feu moyen-doux 4 minutes.",
+               zh: "放入魚片，加蓋，中小火煮 4 分鐘。" } },
+        { t: { en: "Flip and finish", fr: "Retourner et finir", zh: "翻面完成" },
+          d: { en: "Flip the fish gently, cover again and cook 4 more minutes. Serve over rice with the ginger and a spoonful of broth.",
+               fr: "Retournez délicatement le poisson, couvrez à nouveau et laissez cuire encore 4 minutes. Servez sur le riz avec le gingembre et une cuillère de bouillon.",
+               zh: "輕輕翻面，再加蓋煮 4 分鐘。連薑絲和一匙湯汁淋在白飯上享用。" } }
+      ],
+      tip: { en: "No-fry method: the skin stays intact, the flesh stays tender, and the kitchen stays smoke-free. The vinegar also tames any fishiness.",
+             fr: "Sans friture : la peau reste intacte, la chair tendre, et pas de fumée dans la cuisine. Le vinaigre neutralise aussi l’odeur du poisson.",
+             zh: "免煎法：魚皮完整、肉質軟嫩、廚房無油煙。醋也能去腥。" }
+    },
+    {
+      id: "shrimp", def: 1,
+      name: { en: "Silky Egg & Shrimp", fr: "Œufs soyeux aux crevettes", zh: "滑蛋蝦仁" },
+      short: { en: "Shrimp", fr: "Crevettes", zh: "蝦仁" },
+      time: "~15 min",
+      note: { en: "Milk instead of cornstarch for extra-silky eggs", fr: "Du lait plutôt que de la fécule pour des œufs très soyeux", zh: "以鮮奶取代太白粉，蛋更滑嫩" },
+      groups: [
+        { label: null, items: [
+          { n: { en: "Shrimp, peeled & deveined", fr: "Crevettes décortiquées et déveinées", zh: "蝦仁" }, q: 250, u: "g", approx: true },
+          { n: { en: "Eggs", fr: "Œufs", zh: "雞蛋" }, q: 4, u: "pc" },
+          { n: { en: "Fresh milk", fr: "Lait frais", zh: "鮮奶" }, q: 60, u: "ml" },
+          { n: { en: "Scallions, chopped", fr: "Oignons nouveaux ciselés", zh: "蔥花" }, q: 2, u: "stalk" },
+          { n: { en: "Salt", fr: "Sel", zh: "鹽" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } },
+          { n: { en: "Cooked rice", fr: "Riz cuit", zh: "白飯" }, q: 2, u: "serv" }
+        ]}
+      ],
+      steps: [
+        { t: { en: "Prep the shrimp", fr: "Préparer les crevettes", zh: "處理蝦仁" },
+          d: { en: "Clean and devein the shrimp (frozen shrimp work too), then pat them dry.",
+               fr: "Nettoyez et déveinez les crevettes (les surgelées conviennent aussi), puis séchez-les.",
+               zh: "蝦仁洗淨去腸泥（冷凍蝦仁也可以），擦乾備用。" } },
+        { t: { en: "Egg mixture", fr: "Mélange d’œufs", zh: "調蛋液" },
+          d: { en: "Beat the eggs with the milk — it replaces cornstarch for a lighter result. Stir in the scallions and a pinch of salt.",
+               fr: "Battez les œufs avec le lait — il remplace la fécule pour un résultat plus léger. Incorporez les oignons nouveaux et une pincée de sel.",
+               zh: "雞蛋加鮮奶打勻——以奶代粉更清爽。加入蔥花和少許鹽拌勻。" } },
+        { t: { en: "Cook the shrimp", fr: "Cuire les crevettes", zh: "炒蝦仁" },
+          d: { en: "Heat a little oil over low heat and stir-fry the shrimp just until they turn pink and are cooked through. Remove and set aside.",
+               fr: "Chauffez un peu d’huile à feu doux et faites sauter les crevettes juste jusqu’à ce qu’elles rosissent et soient cuites. Retirez et réservez.",
+               zh: "小火熱少許油，蝦仁炒至變色熟透，起鍋備用。" } },
+        { t: { en: "Combine", fr: "Assembler", zh: "混合" },
+          d: { en: "Stir the cooked shrimp into the egg mixture.",
+               fr: "Mélangez les crevettes cuites au mélange d’œufs.",
+               zh: "將炒好的蝦仁拌入蛋液中。" } },
+        { t: { en: "Silky scramble", fr: "Brouillade soyeuse", zh: "滑蛋" },
+          d: { en: "Add a little more oil to the wok. Pour in the shrimp-and-egg mixture and stir quickly in wide circles over medium-low heat.",
+               fr: "Ajoutez un peu plus d’huile dans le wok. Versez le mélange œufs-crevettes et remuez rapidement en grands cercles à feu moyen-doux.",
+               zh: "鍋中補一點油，倒入蝦仁蛋液，中小火快速畫圈翻炒。" } },
+        { t: { en: "Serve barely set", fr: "Servir à peine pris", zh: "嫩熟即起" },
+          d: { en: "Stop while the eggs are still glossy and moist, and serve immediately over rice.",
+               fr: "Arrêtez la cuisson quand les œufs sont encore brillants et moelleux, et servez aussitôt sur le riz.",
+               zh: "蛋液尚滑嫩帶光澤時立刻起鍋，蓋在白飯上馬上享用。" } }
+      ],
+      tip: { en: "Don’t overcook — the eggs turn dry and hard in seconds. Take the pan off the heat a moment early; they finish cooking on the way to the table.",
+             fr: "Ne prolongez pas la cuisson : les œufs deviennent secs et durs en quelques secondes. Retirez du feu un instant trop tôt — ils finissent de cuire en route vers la table.",
+             zh: "切勿炒過頭——雞蛋幾秒內就會變乾變硬。提早一點離火，餘溫會讓它剛好熟。" }
+    },
+    {
+      id: "wings", def: 1,
+      name: { en: "Cola Chicken Wings", fr: "Ailes de poulet au cola", zh: "可樂雞翅" },
+      short: { en: "Wings", fr: "Ailes", zh: "雞翅" },
+      time: "15 min",
+      note: { en: "The classic fail-proof 3 : 1 cola-to-soy ratio", fr: "Le ratio infaillible 3 : 1 cola / sauce soja", zh: "經典不敗的可樂：醬油＝3：1" },
+      groups: [
+        { label: { en: "Main", fr: "Principal", zh: "主料" }, items: [
+          { n: { en: "Chicken wings", fr: "Ailes de poulet", zh: "雞翅" }, q: 8, u: "pc", approx: true }
+        ]},
+        { label: { en: "Golden sauce", fr: "Sauce dorée", zh: "黃金醬汁" }, items: [
+          { n: { en: "Cola", fr: "Cola", zh: "可樂" }, q: 300, u: "ml" },
+          { n: { en: "Soy sauce", fr: "Sauce soja", zh: "醬油" }, q: 100, u: "ml" }
+        ]},
+        { label: { en: "Aromatics", fr: "Aromates", zh: "辛香料" }, items: [
+          { n: { en: "Scallion", fr: "Oignon nouveau", zh: "蔥" }, q: 1, u: "stalk" },
+          { n: { en: "Ginger", fr: "Gingembre", zh: "薑" }, q: 1, u: "slice" },
+          { n: { en: "Garlic", fr: "Ail", zh: "蒜" }, q: 2, u: "clove" }
+        ]},
+        { label: { en: "Garnish", fr: "Finition", zh: "點綴" }, items: [
+          { n: { en: "White sesame seeds", fr: "Graines de sésame blanc", zh: "白芝麻" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } }
+        ]}
+      ],
+      steps: [
+        { t: { en: "Prep the wings", fr: "Préparer les ailes", zh: "處理雞翅" },
+          d: { en: "Pat the wings dry with paper towels so they don’t splatter. Score both sides of each wing with two diagonal cuts so the sauce can penetrate.",
+               fr: "Séchez les ailes avec du papier absorbant pour éviter les éclaboussures. Entaillez chaque aile de deux incisions en diagonale de chaque côté pour que la sauce pénètre.",
+               zh: "用廚房紙巾把雞翅擦乾以免噴油。每支雞翅兩面各斜劃兩刀，讓醬汁入味。" } },
+        { t: { en: "Pan-sear", fr: "Saisir à la poêle", zh: "煎上色" },
+          d: { en: "Heat a little oil in a wok over medium heat. Sear the wings on both sides until golden and crispy, rendering the excess fat from the skin.",
+               fr: "Faites chauffer un peu d’huile dans un wok à feu moyen. Faites dorer les ailes des deux côtés jusqu’à ce qu’elles soient croustillantes, en laissant fondre l’excès de gras de la peau.",
+               zh: "鍋中放少許油，中火將雞翅兩面煎至金黃酥脆，逼出雞皮多餘的油脂。" } },
+        { t: { en: "Braise", fr: "Braiser", zh: "燜煮" },
+          d: { en: "Pour in the soy sauce, then the cola. Add the ginger, garlic and scallion. Bring to a boil, then reduce to low heat, cover and simmer for 10 minutes.",
+               fr: "Versez la sauce soja, puis le cola. Ajoutez le gingembre, l’ail et l’oignon nouveau. Portez à ébullition, puis baissez à feu doux, couvrez et laissez mijoter 10 minutes.",
+               zh: "倒入醬油，再倒入可樂。加入薑、蒜、蔥。煮滾後轉小火，加蓋燜 10 分鐘。" } },
+        { t: { en: "Reduce the sauce", fr: "Réduire la sauce", zh: "收汁" },
+          d: { en: "Remove the lid and discard the aromatics. Raise the heat to medium-high and keep turning the wings to coat them evenly until the sauce is thick, glossy and bubbling in large bubbles.",
+               fr: "Retirez le couvercle et ôtez les aromates. Montez à feu moyen-vif et retournez régulièrement les ailes pour bien les enrober, jusqu’à ce que la sauce soit épaisse, brillante et fasse de grosses bulles.",
+               zh: "開蓋撈出辛香料。轉中大火，不斷翻動雞翅使其均勻裹上醬汁，收至醬汁濃稠發亮、冒大泡泡。" } },
+        { t: { en: "Serve", fr: "Servir", zh: "盛盤" },
+          d: { en: "Arrange the wings on a plate and sprinkle with white sesame seeds.",
+               fr: "Dressez les ailes sur une assiette et parsemez de graines de sésame blanc.",
+               zh: "雞翅擺盤，撒上白芝麻。" } }
+      ]
+    },
+    {
+      id: "noodles", def: 1,
+      name: { en: "Stir-Fried Glass Noodles with Pork Belly", fr: "Vermicelles sautés à la poitrine de porc", zh: "五花肉炒冬粉" },
+      short: { en: "Noodles", fr: "Vermicelles", zh: "冬粉" },
+      time: "~25 min",
+      note: { en: "One-pan Taiwanese home cooking", fr: "Cuisine familiale taïwanaise, tout dans une poêle", zh: "一鍋到底的台式家常菜" },
+      groups: [
+        { label: null, items: [
+          { n: { en: "Glass noodles", fr: "Vermicelles de haricot mungo", zh: "冬粉" }, q: 2, u: "bund" },
+          { n: { en: "Pork belly", fr: "Poitrine de porc", zh: "五花肉" }, q: 300, u: "g", approx: true },
+          { n: { en: "Carrot", fr: "Carotte", zh: "紅蘿蔔" }, q: { txt: { en: "1 small piece", fr: "1 petit morceau", zh: "一小段" } } },
+          { n: { en: "Scallions", fr: "Oignons nouveaux", zh: "蔥" }, q: 2, u: "stalk" },
+          { n: { en: "Dried shiitake mushrooms", fr: "Champignons shiitaké séchés", zh: "乾香菇" }, q: 2, u: "pc" },
+          { n: { en: "Light soy sauce", fr: "Sauce soja claire", zh: "醬油" }, q: 2, u: "tbsp" },
+          { n: { en: "Mushroom oyster sauce", fr: "Sauce d’huître aux champignons", zh: "香菇素蠔油" }, q: 1, u: "tbsp" },
+          { n: { en: "White pepper", fr: "Poivre blanc", zh: "白胡椒" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } }
+        ]}
+      ],
+      steps: [
+        { t: { en: "Soak the glass noodles — start first", fr: "Tremper les vermicelles — à faire en premier", zh: "泡冬粉——第一步" },
+          d: { en: "Put the glass noodles in a large bowl of water well ahead: they need a long soak to drink up water and untangle. Start this before anything else — it takes a while.",
+               fr: "Mettez les vermicelles dans un grand bol d’eau bien à l’avance : il leur faut un long trempage pour absorber l’eau et se démêler. Lancez ça avant tout le reste — ça prend du temps.",
+               zh: "提早把冬粉泡進一大碗水裡：需要長時間浸泡才能吸水、散開。先做這一步——很花時間。" } },
+        { t: { en: "Prep", fr: "Préparer", zh: "備料" },
+          d: { en: "Peel and julienne the carrot; cut the scallions into sections, keeping whites and greens separate. Soak the dried shiitake in water, squeeze dry and slice — keep the soaking water.",
+               fr: "Épluchez et taillez la carotte en julienne ; coupez les oignons nouveaux en tronçons, en séparant le blanc du vert. Faites tremper les shiitakés dans l’eau, pressez-les et émincez-les — gardez l’eau de trempage.",
+               zh: "紅蘿蔔削皮切絲；蔥切段、蔥白蔥綠分開。乾香菇泡水後擠乾切片——香菇水留著。" } },
+        { t: { en: "Render the pork", fr: "Faire fondre le porc", zh: "煸五花肉" },
+          d: { en: "Heat a lightly oiled pan and stir-fry the sliced pork belly until it colours and releases its fat.",
+               fr: "Faites chauffer une poêle légèrement huilée et faites sauter la poitrine de porc émincée jusqu’à ce qu’elle colore et libère son gras.",
+               zh: "鍋中薄油，將五花肉片炒至上色出油。" } },
+        { t: { en: "Aromatics", fr: "Aromates", zh: "炒香" },
+          d: { en: "Add the shiitake, carrot and scallion whites, and stir-fry until fragrant.",
+               fr: "Ajoutez les shiitakés, la carotte et le blanc des oignons nouveaux, et faites sauter jusqu’à ce que le tout soit parfumé.",
+               zh: "加入香菇、紅蘿蔔、蔥白，炒出香氣。" } },
+        { t: { en: "Season", fr: "Assaisonner", zh: "調味" },
+          d: { en: "Add the soy sauce, mushroom oyster sauce and white pepper, toss briefly, then pour in the reserved mushroom soaking water.",
+               fr: "Ajoutez la sauce soja, la sauce d’huître aux champignons et le poivre blanc, mélangez brièvement, puis versez l’eau de trempage réservée.",
+               zh: "加醬油、香菇素蠔油、白胡椒略拌，倒入預留的香菇水。" } },
+        { t: { en: "Finish", fr: "Finir", zh: "收尾" },
+          d: { en: "Drain the noodles, add them and cook until soft and translucent. Toss in the scallion greens and cook until the sauce is absorbed.",
+               fr: "Égouttez les vermicelles, ajoutez-les et faites cuire jusqu’à ce qu’ils soient souples et translucides. Ajoutez le vert des oignons nouveaux et laissez cuire jusqu’à absorption de la sauce.",
+               zh: "冬粉瀝乾下鍋，煮至軟透呈半透明。加入蔥綠，炒至醬汁吸收。" } }
+      ],
+      tip: { en: "Make it yours: the original cook seasons to taste — some readers add napa cabbage or a splash of vinegar at the end. Adjust freely.",
+             fr: "À votre goût : la cuisinière d’origine assaisonne à l’instinct — certains ajoutent du chou chinois ou un trait de vinaigre en fin de cuisson. Adaptez librement.",
+             zh: "隨意調整：原作者憑感覺調味——有人最後會加大白菜或一點醋。自由發揮。" }
+    },
+    {
+      // Source (2026-11-22, pasted in French) serves ~6: 1 pork hock (assumed ~1 kg), 1 strip of
+      // pork belly, 2 slices of pork shoulder (200–250 g), 1 L water. Encoded at 1/3 for the 2-person base.
+      id: "porkbraise", def: 0,
+      name: { en: "Cola-Braised Pork Hock & Belly", fr: "Jarret et poitrine de porc braisés au cola", zh: "可樂滷豬腳" },
+      short: { en: "Braised pork", fr: "Porc braisé", zh: "滷豬腳" },
+      time: "~2 h 15",
+      note: { en: "Caramel, soy and cola braise — slow and hands-off", fr: "Braisé au caramel, sauce soja et cola — long mais sans surveillance", zh: "冰糖、醬油、可樂慢滷，省事不費工" },
+      groups: [
+        { label: { en: "Main", fr: "Principal", zh: "主料" }, items: [
+          { n: { en: "Pork hock, chopped into pieces", fr: "Jarret de porc, coupé en morceaux", zh: "豬腳（剁塊）" }, q: 350, u: "g", approx: true },
+          { n: { en: "Pork belly, in large chunks", fr: "Poitrine de porc, en gros morceaux", zh: "五花肉（切大塊）" }, q: 150, u: "g", approx: true },
+          { n: { en: "Pork shoulder (collar)", fr: "Échine de porc", zh: "梅花肉" }, q: 80, u: "g", approx: true }
+        ]},
+        { label: { en: "Aromatics", fr: "Aromates", zh: "辛香料" }, items: [
+          { n: { en: "Ginger", fr: "Gingembre", zh: "薑" }, q: 3, u: "slice" },
+          { n: { en: "Scallions, in sections", fr: "Ciboule, en tronçons", zh: "蔥（切段）" }, q: 1, u: "stalk" },
+          { n: { en: "Garlic, crushed", fr: "Ail, écrasé", zh: "蒜（拍碎）" }, q: 3, u: "clove" },
+          { n: { en: "Braising spice bag", fr: "Sachet d’épices à braiser", zh: "滷包" }, q: 0.5, u: "bag" }
+        ]},
+        { label: { en: "Braising sauce", fr: "Sauce de braisage", zh: "滷汁" }, items: [
+          { n: { en: "Rock sugar", fr: "Sucre candi", zh: "冰糖" }, q: 20, u: "g" },
+          { n: { en: "Soy sauce", fr: "Sauce soja", zh: "醬油" }, q: 70, u: "ml" },
+          { n: { en: "Rice wine (+ a splash for blanching)", fr: "Vin de riz (+ un trait pour blanchir)", zh: "米酒（另備少許汆燙用）" }, q: 40, u: "ml" },
+          { n: { en: "Oyster sauce (or thick soy paste)", fr: "Sauce d’huître (ou sauce soja épaisse)", zh: "蠔油（或醬油膏）" }, q: 1, u: "tbsp" },
+          { n: { en: "Cola — classic, not zero sugar", fr: "Coca-Cola — classique, pas sans sucre", zh: "可樂（原味，勿用零卡）" }, q: 120, u: "ml" },
+          { n: { en: "Water, just enough to cover", fr: "Eau, juste à hauteur", zh: "水（剛好蓋過食材）" }, q: 330, u: "ml", approx: true },
+          { n: { en: "Cooking oil", fr: "Huile", zh: "食用油" }, q: { txt: { en: "1 drizzle", fr: "1 filet", zh: "少許" } } }
+        ]},
+        { label: { en: "Add-ins & to serve", fr: "Garnitures et accompagnement", zh: "配料與主食" }, items: [
+          { n: { en: "Eggs (boiled first, then braised)", fr: "Œufs (cuits à l’eau, puis braisés)", zh: "雞蛋（先水煮，再入鍋滷）" }, q: 2, u: "pc" },
+          { n: { en: "Kombu, dried tofu or tofu (optional)", fr: "Kombu, tofu séché ou tofu (facultatif)", zh: "海帶、豆乾或豆腐（可選）" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } },
+          { n: { en: "Cooked rice", fr: "Riz cuit", zh: "白飯" }, q: 2, u: "serv" }
+        ]},
+        { label: { en: "Homemade spice bag — per bag", fr: "Sachet d’épices maison — pour 1 sachet", zh: "自製滷包——每包" }, fixed: true, items: [
+          { n: { en: "Star anise", fr: "Anis étoilé", zh: "八角" }, q: { txt: { en: "2", fr: "2", zh: "2 顆" } } },
+          { n: { en: "Cinnamon stick", fr: "Bâton de cannelle", zh: "肉桂棒" }, q: { txt: { en: "1 small", fr: "1 petit", zh: "1 小根" } } },
+          { n: { en: "Sichuan peppercorns", fr: "Poivre du Sichuan", zh: "花椒" }, q: { txt: { en: "1 tsp", fr: "1 c. à c.", zh: "1 小匙" } } },
+          { n: { en: "Fennel seeds", fr: "Graines de fenouil", zh: "小茴香" }, q: { txt: { en: "1 tsp", fr: "1 c. à c.", zh: "1 小匙" } } },
+          { n: { en: "Cloves", fr: "Clous de girofle", zh: "丁香" }, q: { txt: { en: "3", fr: "3", zh: "3 顆" } } },
+          { n: { en: "Bay leaves", fr: "Feuilles de laurier", zh: "月桂葉" }, q: { txt: { en: "2", fr: "2", zh: "2 片" } } }
+        ], subnote: { en: "Same blend as the beef soup. Store-bought packet works too; wrap a homemade one in a muslin cloth or a tea-filter bag.",
+                      fr: "Même mélange que pour la soupe de bœuf. Un sachet du commerce convient aussi ; enveloppez le fait-maison dans une gaze ou un filtre à thé.",
+                      zh: "與牛肉麵同一配方。市售滷包也可以；自製的用紗布或茶包袋包好。" } }
+      ],
+      steps: [
+        { t: { en: "Wash & blanch the meat", fr: "Laver et blanchir la viande", zh: "洗肉汆燙" },
+          d: { en: "The classic prep for any meat: wash all the pork and put it in a pot of cold water with half the ginger and a splash of rice wine (on top of the amount listed). Bring to a boil and boil 5 minutes to draw out the impurities. Drain, rinse well under cold water, pick off any hairs left on the hock skin, and set aside.",
+               fr: "La préparation classique pour toute viande : lavez tout le porc et mettez-le dans une marmite d’eau froide avec la moitié du gingembre et un trait de vin de riz (en plus de la quantité indiquée). Portez à ébullition et laissez bouillir 5 minutes pour éliminer les impuretés. Égouttez, rincez abondamment à l’eau froide, retirez les poils restants sur la peau du jarret et réservez.",
+               zh: "處理肉類的經典步驟：豬肉全部洗淨，冷水下鍋，加一半的薑片和少許米酒（不算在份量內）。煮滾後再滾 5 分鐘去除雜質。撈出用冷水沖洗乾淨，拔除豬腳皮上殘留的毛，備用。" } },
+        { t: { en: "Make the caramel", fr: "Faire le caramel", zh: "炒糖色" },
+          d: { en: "Drizzle a little oil into the pot, add the rock sugar and melt it over very low heat until it forms amber bubbles.",
+               fr: "Versez un filet d’huile dans la marmite, ajoutez le sucre candi et faites-le fondre à feu très doux jusqu’à obtenir des bulles ambrées.",
+               zh: "鍋中倒少許油，放入冰糖，以極小火炒至融化、冒出琥珀色泡泡。" } },
+        { t: { en: "Coat the meat", fr: "Enrober la viande", zh: "肉裹糖色" },
+          d: { en: "Add the meat and toss quickly over high heat so every piece is coated in caramel.",
+               fr: "Ajoutez la viande et faites-la sauter rapidement à feu vif pour bien enrober chaque morceau de caramel.",
+               zh: "放入肉塊，大火快速翻炒，讓每塊都均勻裹上糖色。" } },
+        { t: { en: "Aromatics", fr: "Aromates", zh: "爆香" },
+          d: { en: "Add the rest of the ginger, the scallions and the garlic, and stir-fry until fragrant.",
+               fr: "Ajoutez le reste du gingembre, la ciboule et l’ail, et faites revenir jusqu’à ce qu’ils dégagent leur parfum.",
+               zh: "加入其餘薑片、蔥段和蒜，炒出香氣。" } },
+        { t: { en: "Deglaze and cover", fr: "Déglacer et mouiller", zh: "加調味與水" },
+          d: { en: "Add the soy sauce, rice wine, oyster sauce, cola and the spice bag, then pour in water just to the level of the meat.",
+               fr: "Ajoutez la sauce soja, le vin de riz, la sauce d’huître, le cola et le sachet d’épices, puis versez de l’eau juste à hauteur de la viande.",
+               zh: "加入醬油、米酒、蠔油、可樂和滷包，再加水至剛好蓋過肉。" } },
+        { t: { en: "Simmer", fr: "Mijoter", zh: "小火慢滷" },
+          d: { en: "Bring to a boil over high heat, then turn down to very low, cover and simmer for 1 h 30.",
+               fr: "Portez à ébullition à feu vif, puis baissez à feu très doux, couvrez et laissez mijoter 1 h 30.",
+               zh: "大火煮滾後轉極小火，加蓋滷 1 小時 30 分鐘。" } },
+        { t: { en: "Boil and peel the eggs", fr: "Cuire et écaler les œufs", zh: "煮蛋剝殼" },
+          d: { en: "While the meat simmers, cook the eggs in a separate pot of boiling water until hard-boiled (about 10 minutes), cool them in cold water and peel them.",
+               fr: "Pendant que la viande mijote, faites cuire les œufs dans une casserole d’eau bouillante à part jusqu’à ce qu’ils soient durs (environ 10 minutes), refroidissez-les à l’eau froide et écalez-les.",
+               zh: "滷肉的同時，另起一鍋滾水把雞蛋煮熟（約 10 分鐘），泡冷水後剝殼。" } },
+        { t: { en: "Add-ins, then serve", fr: "Garnitures, puis servir", zh: "加配料，上桌" },
+          d: { en: "Add the peeled eggs to the pot and any extras (kombu, dried tofu, tofu). Cover again and simmer 30 minutes more. Serve over rice with a spoonful of the sauce.",
+               fr: "Ajoutez dans la marmite les œufs écalés et les garnitures de votre choix (kombu, tofu séché, tofu). Couvrez à nouveau et laissez mijoter encore 30 minutes. Servez sur le riz avec une cuillère de sauce.",
+               zh: "把剝好殼的水煮蛋和喜歡的配料放入鍋中（海帶、豆乾、豆腐），再加蓋滷 30 分鐘。盛在白飯上，淋一匙滷汁。" } }
+      ],
+      tip: { en: "Use classic Coca-Cola, never the zero-sugar kind: its sugar is part of the glaze. Keep the caramel on very low heat.",
+             fr: "Prenez du Coca-Cola classique, jamais la version sans sucre : son sucre fait partie du laquage. Gardez le caramel à feu très doux.",
+             zh: "請用原味可樂，不要用零卡：可樂的糖是醬色的一部分。炒糖色時保持極小火。" }
+    },
+    {
+      id: "soup", def: 2,
+      name: { en: "Braised Beef Noodle Soup", fr: "Soupe de nouilles au bœuf braisé", zh: "紅燒牛肉麵" },
+      short: { en: "Beef soup", fr: "Soupe bœuf", zh: "牛肉麵" },
+      time: "~60 min",
+      note: { en: "Taiwanese red-braised style — even better the next day", fr: "Braisage rouge à la taïwanaise — encore meilleure le lendemain", zh: "台式紅燒風味——隔天更好吃" },
+      groups: [
+        { label: { en: "Main", fr: "Principal", zh: "主料" }, items: [
+          { n: { en: "Beef brisket strips", fr: "Poitrine de bœuf en bandes", zh: "牛腩條" }, q: 350, u: "g", approx: true },
+          { n: { en: "Onion", fr: "Oignon", zh: "洋蔥" }, q: 0.5, u: "pc" },
+          { n: { en: "Carrot", fr: "Carotte", zh: "紅蘿蔔" }, q: 0.5, u: "pc" },
+          { n: { en: "Tomato", fr: "Tomate", zh: "番茄" }, q: 0.5, u: "pc" },
+          { n: { en: "Ginger", fr: "Gingembre", zh: "薑" }, q: { txt: { en: "1 piece", fr: "1 morceau", zh: "1 塊" } } },
+          { n: { en: "Scallions", fr: "Oignons nouveaux", zh: "蔥" }, q: 2, u: "stalk" },
+          { n: { en: "Braising spice bag", fr: "Sachet d’épices à braiser", zh: "滷包" }, q: [0.5, 1], u: "bag" },
+          { n: { en: "Water", fr: "Eau", zh: "水" }, q: 700, u: "ml" },
+          { n: { en: "Wheat noodles", fr: "Nouilles de blé", zh: "麵條" }, q: 2, u: "serv" }
+        ]},
+        { label: { en: "Seasonings", fr: "Assaisonnements", zh: "調味料" }, items: [
+          { n: { en: "Spicy bean paste (doubanjiang)", fr: "Pâte de fèves pimentée", zh: "辣豆瓣醬" }, q: 1, u: "tbsp" },
+          { n: { en: "Soy sauce", fr: "Sauce soja", zh: "醬油" }, q: 60, u: "ml" },
+          { n: { en: "Rice wine", fr: "Vin de riz", zh: "米酒" }, q: 30, u: "ml" },
+          { n: { en: "Dark soy sauce", fr: "Sauce soja foncée", zh: "老抽" }, q: 1, u: "tbsp" },
+          { n: { en: "Salt, white pepper", fr: "Sel, poivre blanc", zh: "鹽、白胡椒" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } },
+          { n: { en: "Chicken powder", fr: "Bouillon de poulet en poudre", zh: "雞粉" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } }
+        ]},
+        { label: { en: "Homemade spice bag — per bag", fr: "Sachet d’épices maison — pour 1 sachet", zh: "自製滷包——每包" }, fixed: true, items: [
+          { n: { en: "Star anise", fr: "Anis étoilé", zh: "八角" }, q: { txt: { en: "2", fr: "2", zh: "2 顆" } } },
+          { n: { en: "Cinnamon stick", fr: "Bâton de cannelle", zh: "肉桂棒" }, q: { txt: { en: "1 small", fr: "1 petit", zh: "1 小根" } } },
+          { n: { en: "Sichuan peppercorns", fr: "Poivre du Sichuan", zh: "花椒" }, q: { txt: { en: "1 tsp", fr: "1 c. à c.", zh: "1 小匙" } } },
+          { n: { en: "Fennel seeds", fr: "Graines de fenouil", zh: "小茴香" }, q: { txt: { en: "1 tsp", fr: "1 c. à c.", zh: "1 小匙" } } },
+          { n: { en: "Cloves", fr: "Clous de girofle", zh: "丁香" }, q: { txt: { en: "3", fr: "3", zh: "3 顆" } } },
+          { n: { en: "Bay leaves", fr: "Feuilles de laurier", zh: "月桂葉" }, q: { txt: { en: "2", fr: "2", zh: "2 片" } } }
+        ], subnote: { en: "The store packet is a “Chinese medicine” blend — this is the standard mix if you make your own. Wrap everything in a muslin cloth or a tea-filter bag.",
+                      fr: "Le sachet du commerce est un mélange « chinese medicine » — voici le mélange standard si vous le faites vous-même. Enveloppez le tout dans une gaze ou un filtre à thé.",
+                      zh: "市售滷包是中藥香料包——若要自製，這是標準配方。全部包進紗布或茶包袋即可。" } }
+      ],
+      steps: [
+        { t: { en: "Prep", fr: "Préparer", zh: "備料" },
+          d: { en: "Wash everything. Cut the beef into chunks, the onion into wedges, the tomato into cubes and the carrot into bias-cut pieces.",
+               fr: "Lavez le tout. Coupez le bœuf en morceaux, l’oignon en quartiers, la tomate en cubes et la carotte en tronçons en biais.",
+               zh: "全部洗淨。牛肉切塊、洋蔥切瓣、番茄切丁、紅蘿蔔滾刀切塊。" } },
+        { t: { en: "Sear and season", fr: "Saisir et assaisonner", zh: "炒香調味" },
+          d: { en: "Heat oil in a wok and briefly stir-fry the ginger. Add the beef and cook until no pink remains. Add the onion, then the spicy bean paste, soy sauce, rice wine, salt, chicken powder and white pepper. Stir well.",
+               fr: "Faites chauffer de l’huile dans un wok et faites revenir brièvement le gingembre. Ajoutez le bœuf et faites-le cuire jusqu’à ce qu’il ne soit plus rosé. Ajoutez l’oignon, puis la pâte de fèves pimentée, la sauce soja, le vin de riz, le sel, le bouillon en poudre et le poivre blanc. Mélangez bien.",
+               zh: "鍋中熱油，先爆香薑片。下牛肉炒至變色，加入洋蔥，再加辣豆瓣醬、醬油、米酒、鹽、雞粉、白胡椒，拌炒均勻。" } },
+        { t: { en: "Build the pot", fr: "Monter la marmite", zh: "入湯鍋" },
+          d: { en: "Transfer everything to a large pot. Add water to cover, then the scallions, tomato, carrot and the spice bag (store-bought or your homemade one).",
+               fr: "Transférez le tout dans une grande marmite. Couvrez d’eau, puis ajoutez les oignons nouveaux, la tomate, la carotte et le sachet d’épices (du commerce ou fait maison).",
+               zh: "全部移入大湯鍋，加水蓋過食材，放入蔥、番茄、紅蘿蔔和滷包（市售或自製）。" } },
+        { t: { en: "Braise", fr: "Braiser", zh: "燉煮" },
+          d: { en: "Bring to a boil, then lower the heat and simmer for about 50 minutes, until the beef is as tender as you like. Fish out the onion, tomato, scallions and ginger for a clearer broth.",
+               fr: "Portez à ébullition, puis baissez le feu et laissez mijoter environ 50 minutes, jusqu’à ce que le bœuf soit tendre à votre goût. Retirez l’oignon, la tomate, les oignons nouveaux et le gingembre pour un bouillon plus clair.",
+               zh: "煮滾後轉小火燉約 50 分鐘，至牛肉軟嫩合口。撈出洋蔥、番茄、蔥、薑，湯頭更清澈。" } },
+        { t: { en: "Serve", fr: "Servir", zh: "組合上桌" },
+          d: { en: "Cook the noodles, place them in bowls with some vegetables, ladle over the broth and beef, and garnish with fresh scallion.",
+               fr: "Faites cuire les nouilles, répartissez-les dans des bols avec quelques légumes, versez le bouillon et le bœuf, et garnissez d’oignon nouveau frais.",
+               zh: "煮麵，碗中放麵和蔬菜，淋上湯與牛肉，撒上蔥花。" } }
+      ],
+      tip: { en: "Chef’s tip: the soup deepens in flavour overnight. Reheat gently so the meat doesn’t turn mushy, and cook fresh noodles that evening.",
+             fr: "L’astuce du chef : la soupe gagne en profondeur pendant la nuit. Réchauffez doucement pour que la viande ne se défasse pas, et faites cuire des nouilles fraîches ce soir-là.",
+             zh: "主廚小訣竅：湯放過夜味道更濃郁。回鍋小火加熱以免肉煮爛，當晚再煮新的麵條。" }
+    },
+    {
+      id: "curry", def: 2,
+      name: { en: "Japanese Beef Curry", fr: "Curry de bœuf japonais", zh: "日式咖哩牛肉" },
+      short: { en: "Curry", fr: "Curry", zh: "咖哩" },
+      time: "~60 min",
+      note: { en: "With the ice-bath secret for tender brisket", fr: "Avec le secret du bain glacé pour une poitrine fondante", zh: "冰鎮秘訣，牛腩更軟嫩" },
+      groups: [
+        { label: null, items: [
+          { n: { en: "Beef brisket strips", fr: "Poitrine de bœuf en bandes", zh: "牛腩條" }, q: 270, u: "g", approx: true },
+          { n: { en: "Onion", fr: "Oignon", zh: "洋蔥" }, q: 0.5, u: "pc" },
+          { n: { en: "Carrot", fr: "Carotte", zh: "紅蘿蔔" }, q: 1, u: "pc" },
+          { n: { en: "Potatoes", fr: "Pommes de terre", zh: "馬鈴薯" }, q: [1, 1.5], u: "pc" },
+          { n: { en: "Broccoli", fr: "Brocoli", zh: "綠花椰菜" }, q: 0.5, u: "head" },
+          { n: { en: "Curry roux (mild + sweet mix)", fr: "Roux de curry (mélange doux + sucré)", zh: "咖哩塊（甘口＋甜口）" }, q: 1.5, u: "block" },
+          { n: { en: "Dark chocolate", fr: "Chocolat noir", zh: "黑巧克力" }, q: 0.5, u: "sq" },
+          { n: { en: "Bay leaves", fr: "Feuilles de laurier", zh: "月桂葉" }, q: [0.5, 1], u: "leaf" },
+          { n: { en: "Water", fr: "Eau", zh: "水" }, q: { txt: { en: "to cover", fr: "à hauteur", zh: "蓋過食材" } } },
+          { n: { en: "Salt", fr: "Sel", zh: "鹽" }, q: { txt: { en: "to taste", fr: "selon le goût", zh: "適量" } } },
+          { n: { en: "Cooked rice", fr: "Riz cuit", zh: "白飯" }, q: 2, u: "serv" }
+        ]}
+      ],
+      steps: [
+        { t: { en: "Wash & blanch the beef", fr: "Laver et blanchir le bœuf", zh: "洗肉汆燙" },
+          d: { en: "The classic prep for any meat: wash the brisket, dip it into boiling water for a minute, rinse it clean again and set aside.",
+               fr: "La préparation classique pour toute viande : lavez la poitrine, plongez-la une minute dans l’eau bouillante, rincez-la à nouveau et réservez.",
+               zh: "處理肉類的經典步驟：牛腩洗淨，放入滾水汆燙一分鐘，再沖洗乾淨，瀝乾備用。" } },
+        { t: { en: "Sear the beef", fr: "Saisir le bœuf", zh: "乾煎" },
+          d: { en: "Pat the brisket dry. In a dry pan over medium-low heat, sear the pieces on both sides until golden brown — no oil needed.",
+               fr: "Séchez la poitrine. Dans une poêle sèche à feu moyen-doux, faites dorer les morceaux des deux côtés — pas besoin d’huile.",
+               zh: "牛腩擦乾。乾鍋中小火將每面煎至金黃——不必加油。" } },
+        { t: { en: "Ice bath — the secret", fr: "Bain glacé — le secret", zh: "冰鎮——秘訣" },
+          d: { en: "Immediately plunge the seared meat into ice water and let it soak until the ice has completely melted. This keeps it tender and washes off excess fat. Drain, then cut into chunks.",
+               fr: "Plongez immédiatement la viande saisie dans de l’eau glacée et laissez-la tremper jusqu’à ce que la glace ait complètement fondu. Cela la garde tendre et élimine l’excès de gras. Égouttez, puis coupez en morceaux.",
+               zh: "煎好的肉立刻泡入冰水，直到冰塊完全融化。肉質保持軟嫩並洗去多餘油脂。瀝乾後切塊。" } },
+        { t: { en: "Aromatics", fr: "Aromates", zh: "炒香" },
+          d: { en: "In the same pan with its drippings, sauté the onion over low heat until soft. Add half the curry blocks and toast briefly to release their aroma. Add the carrots and toss to coat, then the beef, and coat everything well.",
+               fr: "Dans la même poêle avec les sucs, faites fondre l’oignon à feu doux. Ajoutez la moitié des cubes de curry et faites-les revenir brièvement pour libérer leurs arômes. Ajoutez les carottes et enrobez-les, puis le bœuf, et mélangez bien.",
+               zh: "原鍋利用餘油小火將洋蔥炒軟。放入一半咖哩塊略炒出香氣。加入紅蘿蔔拌勻，再下牛肉裹勻。" } },
+        { t: { en: "Braise", fr: "Braiser", zh: "燉煮" },
+          d: { en: "Add water to cover and the bay leaves. Bring to a boil over medium-high heat, skim off the foam, cover, and simmer on low for 20 minutes.",
+               fr: "Couvrez d’eau et ajoutez les feuilles de laurier. Portez à ébullition à feu moyen-vif, écumez, couvrez et laissez mijoter à feu doux 20 minutes.",
+               zh: "加水蓋過食材，放月桂葉。中大火煮滾後撇去浮沫，加蓋小火燉 20 分鐘。" } },
+        { t: { en: "Add the potatoes", fr: "Ajouter les pommes de terre", zh: "加馬鈴薯" },
+          d: { en: "Add the potato chunks and simmer another 20 minutes, until everything is cooked through. Turn off the heat.",
+               fr: "Ajoutez les pommes de terre en morceaux et laissez mijoter encore 20 minutes, jusqu’à ce que tout soit cuit. Éteignez le feu.",
+               zh: "放入馬鈴薯塊再燉 20 分鐘至全部熟透。關火。" } },
+        { t: { en: "Final seasoning", fr: "Assaisonnement final", zh: "最後調味" },
+          d: { en: "With the residual heat, stir in the remaining curry blocks until dissolved. Taste, then round it out with the chocolate and a little salt.",
+               fr: "Avec la chaleur résiduelle, incorporez le reste des cubes de curry jusqu’à dissolution. Goûtez, puis arrondissez avec le chocolat et un peu de sel.",
+               zh: "用餘溫將剩下的咖哩塊拌至融化。試味後加入巧克力和少許鹽提味。" } },
+        { t: { en: "Serve", fr: "Servir", zh: "上桌" },
+          d: { en: "Blanch the broccoli separately, stir it in, and serve the curry over rice.",
+               fr: "Blanchissez le brocoli à part, incorporez-le, et servez le curry sur du riz.",
+               zh: "綠花椰菜另外燙熟拌入，咖哩淋在白飯上。" } }
+      ],
+      tip: { en: "Plan ahead: if you cook this for two nights, save half and add that night’s broccoli freshly blanched when reheating.",
+             fr: "À prévoir : si vous le cuisinez pour deux soirs, gardez-en la moitié et ajoutez le brocoli fraîchement blanchi au moment de réchauffer.",
+             zh: "若一次煮兩晚份：先留一半，回鍋時再拌入現燙的綠花椰菜。" }
+    }
+  ];
+
+  // The week's menu is built from the multipliers: one cook night per recipe with ×N ≥ 1,
+  // in RECIPES order (= perishability: clams first, then fish/shrimp, poultry, pork, beef),
+  // followed by the leftover nights of the ×2/×3 batches. ×0 recipes are skipped.
+  function nightsPlan() {
+    const nights = [];
+    for (const r of RECIPES) if (prefs.m[r.id] > 0) nights.push({ r: r, lo: false });
+    for (const r of RECIPES) for (let i = 1; i < prefs.m[r.id]; i++) nights.push({ r: r, lo: true });
+    return nights;
+  }
+  function dayLabel(n, L) {
+    return L === "zh" ? "第 " + n + " 天" : (L === "fr" ? "Jour " + n : "Day " + n);
+  }
+
+  const T = {
+    title: { en: "Weekly Recipe Book", fr: "Livre de recettes de la semaine", zh: "本週食譜" },
+    plan: { en: "This week", fr: "Cette semaine", zh: "本週計畫" },
+    people: { en: "Number of people", fr: "Nombre de personnes", zh: "用餐人數" },
+    planHint: { en: "×N = how many times you cook that recipe this week — ×0 skips it. All quantities below update automatically (one bigger pot, not separate cooks).",
+                fr: "×N = combien de fois vous cuisinez cette recette dans la semaine — ×0 la met de côté. Toutes les quantités ci-dessous se mettent à jour (une seule grande marmite, pas plusieurs cuissons).",
+                zh: "×N＝這道菜本週煮幾次——×0 表示這週不煮。以下所有份量會自動更新（一鍋加大，不用分次煮）。" },
+    covernote: { en: "<b>Cook once, eat twice:</b> recipes set to ×2 are cooked as one batch on the first night and reheated later in the week — they taste even better the next day.",
+                 fr: "<b>Cuisiner une fois, manger deux fois :</b> les recettes en ×2 se cuisinent en une seule fois le premier soir et se réchauffent plus tard dans la semaine — elles sont encore meilleures le lendemain.",
+                 zh: "<b>一次煮兩餐：</b>設為 ×2 的食譜第一晚一鍋煮好，之後再加熱——隔天更好吃。" },
+    leftovers: { en: "(leftovers)", fr: "(restes)", zh: "（回鍋）" },
+    serves: { en: "Serves", fr: "Pour", zh: "供" },
+    people2: { en: "people", fr: "pers.", zh: "人" },
+    time: { en: "Time", fr: "Temps", zh: "時間" },
+    batch1: { en: "one pot =", fr: "une marmite =", zh: "一鍋＝" },
+    skipped: { en: "not planned this week", fr: "pas prévue cette semaine", zh: "本週不煮" },
+    servings: { en: "servings", fr: "portions", zh: "人份" },
+    ingredients: { en: "Ingredients", fr: "Ingrédients", zh: "食材" },
+    method: { en: "Method", fr: "Préparation", zh: "作法" },
+    backtop: { en: "↑ Back to menu", fr: "↑ Retour au menu", zh: "↑ 回到菜單" }
+  };
+
+  // ---------- state ----------
+  const PKEY = "weekly-book-prefs-v1";
+  let prefs = { p: 2, m: {}, lang: "en" };
+  try { Object.assign(prefs, JSON.parse(localStorage.getItem(PKEY)) || {}); } catch (e) {}
+  for (const r of RECIPES) if (![0,1,2,3].includes(prefs.m[r.id])) prefs.m[r.id] = r.def;
+  if (!["en","fr","zh"].includes(prefs.lang)) prefs.lang = "en";
+  if (!(prefs.p >= 1 && prefs.p <= 8)) prefs.p = 2;
+  const save = () => { try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (e) {} };
+
+  // ---------- render ----------
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
+
+  function renderPlan() {
+    const L = prefs.lang, plan = document.getElementById("plan");
+    plan.innerHTML = "";
+    plan.appendChild(el("h2", null, T.plan[L]));
+    const ppl = el("div", "ppl");
+    ppl.appendChild(el("span", "lbl", T.people[L]));
+    const minus = el("button", "step-btn", "−"); minus.type = "button"; minus.disabled = prefs.p <= 1;
+    const num = el("b", null, prefs.p);
+    const plus = el("button", "step-btn", "+"); plus.type = "button"; plus.disabled = prefs.p >= 8;
+    minus.onclick = () => { if (prefs.p > 1) { prefs.p--; save(); renderAll(); } };
+    plus.onclick = () => { if (prefs.p < 8) { prefs.p++; save(); renderAll(); } };
+    ppl.append(minus, num, plus);
+    plan.appendChild(ppl);
+    for (const r of RECIPES) {
+      const row = el("div", "mrow");
+      row.appendChild(el("span", "rname", r.name[L]));
+      const seg = el("div", "seg");
+      seg.setAttribute("role", "group");
+      seg.setAttribute("aria-label", r.name[L]);
+      for (const v of [0, 1, 2, 3]) {
+        const b = el("button", prefs.m[r.id] === v ? "on" : "", "×" + v);
+        b.type = "button";
+        b.setAttribute("aria-pressed", prefs.m[r.id] === v ? "true" : "false");
+        b.onclick = () => { prefs.m[r.id] = v; save(); renderAll(); };
+        seg.appendChild(b);
+      }
+      row.appendChild(seg);
+      plan.appendChild(row);
+    }
+    plan.appendChild(el("p", "plan-hint", T.planHint[L]));
+  }
+
+  function renderMenu() {
+    const L = prefs.lang, menu = document.getElementById("menu");
+    menu.innerHTML = "";
+    nightsPlan().forEach((m, i) => {
+      const a = el("a", null);
+      a.href = "#r-" + m.r.id;
+      a.append(el("span", "d", dayLabel(i + 1, L)), el("span", "dish", m.r.name[L] + (m.lo ? ' <span class="lo">' + T.leftovers[L] + "</span>" : "")));
+      menu.appendChild(a);
+    });
+    document.getElementById("covernote").innerHTML = T.covernote[prefs.lang];
+  }
+
+  function renderRecipes() {
+    const L = prefs.lang, root = document.getElementById("recipes");
+    root.innerHTML = "";
+    for (const r of RECIPES) {
+      const M = prefs.m[r.id];
+      // ×0: keep the recipe readable at base quantities, greyed out and marked as skipped.
+      const f = (prefs.p / 2) * (M || 1);
+      const sec = el("section", "recipe" + (M === 0 ? " off" : ""));
+      sec.id = "r-" + r.id;
+
+      const head = el("div", "r-head");
+      head.appendChild(el("span", "day-badge", r.short[L] + " · ×" + M));
+      head.appendChild(el("h3", "r-title", r.name[L]));
+      const meta = el("div", "r-meta");
+      meta.appendChild(el("span", null, T.serves[L] + " <b>" + prefs.p + "</b> " + T.people2[L]));
+      meta.appendChild(el("span", null, T.time[L] + " <b>" + r.time + "</b>"));
+      meta.appendChild(el("span", "r-batch", M === 0 ? T.skipped[L] : T.batch1[L] + " " + (prefs.p * M) + " " + T.servings[L]));
+      meta.appendChild(el("span", null, r.note[L]));
+      head.appendChild(meta);
+      sec.appendChild(head);
+
+      const ing = el("div", "ing");
+      ing.appendChild(el("h4", null, T.ingredients[L]));
+      for (const g of r.groups) {
+        if (g.label) ing.appendChild(el("h5", null, g.label[L]));
+        const ul = el("ul");
+        for (const it of g.items) {
+          const li = el("li");
+          li.appendChild(el("span", null, it.n[L]));
+          li.appendChild(el("span", "q", fmtQ(it.q, it.u, g.fixed ? 1 : f, it.approx, L)));
+          ul.appendChild(li);
+        }
+        ing.appendChild(ul);
+        if (g.subnote) ing.appendChild(el("p", "subnote", g.subnote[L]));
+      }
+      sec.appendChild(ing);
+
+      const steps = el("div", "steps");
+      const ol = el("ol");
+      for (const s of r.steps) {
+        const li = el("li");
+        li.appendChild(el("b", null, s.t[L]));
+        li.appendChild(el("p", null, s.d[L]));
+        ol.appendChild(li);
+      }
+      steps.appendChild(ol);
+      if (r.tip) steps.appendChild(el("div", "tipbox", "<b>💡</b> " + r.tip[L]));
+      const back = el("a", "backtop", T.backtop[L]);
+      back.href = "#top";
+      steps.appendChild(back);
+      sec.appendChild(steps);
+      root.appendChild(sec);
+    }
+  }
+
+  function renderAll() {
+    const L = prefs.lang;
+    document.getElementById("title").textContent = T.title[L];
+    for (const k of ["en","fr","zh"]) document.getElementById("lang-" + k).className = L === k ? "on" : "";
+    renderPlan(); renderMenu(); renderRecipes();
+  }
+
+  document.getElementById("lang-en").onclick = () => { prefs.lang = "en"; save(); renderAll(); };
+  document.getElementById("lang-fr").onclick = () => { prefs.lang = "fr"; save(); renderAll(); };
+  document.getElementById("lang-zh").onclick = () => { prefs.lang = "zh"; save(); renderAll(); };
+  renderAll();
+</script>
